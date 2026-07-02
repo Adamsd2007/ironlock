@@ -1,20 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Shield, ExternalLink, AlertTriangle, CheckCircle } from "lucide-react";
+import { useParams } from "next/navigation";
+import { AlertTriangle, ExternalLink, CheckCircle, XCircle } from "lucide-react";
 import { formatAddress, getBscscanAddressUrl } from "@/lib/utils";
 
 interface DevData {
-  walletAge: number;
-  txCount: number;
-  bnbBalance: string;
+  address: string;
+  reputationScore: number;
+  badge: string;
   totalLaunches: number;
   successfulLaunches: number;
   refundedLaunches: number;
-  reputationScore: number;
-  badge: string;
+  walletAge: number;
+  txCount: number;
+  error?: string;
 }
 
 export default function DevProfilePage() {
@@ -25,87 +26,144 @@ export default function DevProfilePage() {
 
   useEffect(() => {
     if (!address) return;
-    fetch(`/api/dev-reputation?address=${address}`)
-      .then(r => r.json())
-      .then(d => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+
+    async function fetchDevData() {
+      try {
+        const res = await fetch(`/api/dev-reputation?address=${address}`);
+        const result = await res.json();
+        setData(result);
+      } catch (error) {
+        setData({ 
+          address, 
+          reputationScore: 0, 
+          badge: "Unknown",
+          totalLaunches: 0,
+          successfulLaunches: 0,
+          refundedLaunches: 0,
+          walletAge: 0,
+          txCount: 0,
+          error: "Failed to load developer data"
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDevData();
   }, [address]);
 
-  if (loading) return <div className="max-w-3xl mx-auto px-4 py-12"><div className="card skeleton h-64" /></div>;
-  if (!data || data.error) return (
-    <div className="max-w-3xl mx-auto px-4 py-12 text-center">
-      <AlertTriangle className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
-      <h1 className="text-xl font-bold text-white">Dev Not Found</h1>
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12">
+        <div className="card skeleton h-64" />
+      </div>
+    );
+  }
 
-  const scoreColor = data.reputationScore >= 80 ? "text-green-400" : data.reputationScore >= 50 ? "text-yellow-400" : "text-red-400";
-  const borderColor = data.reputationScore >= 80 ? "border-green-400/30" : data.reputationScore >= 50 ? "border-yellow-400/30" : "border-red-400/30";
+  if (!data) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12 text-center">
+        <AlertTriangle className="w-12 h-12 text-yellow-400 mx-auto mb-4" />
+        <h1 className="text-xl font-bold text-white">Dev Not Found</h1>
+        <p className="text-text-secondary">No developer data available for this address.</p>
+      </div>
+    );
+  }
+
+  if (data.error) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12 text-center">
+        <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+        <h1 className="text-xl font-bold text-white">Error Loading Data</h1>
+        <p className="text-text-secondary">{data.error}</p>
+      </div>
+    );
+  }
+
+  const scoreColor = data.reputationScore >= 80 
+    ? "text-green-400" 
+    : data.reputationScore >= 50 
+    ? "text-yellow-400" 
+    : "text-red-400";
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
-      {/* Header */}
-      <div className={`card mb-6 ${borderColor}`}>
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-white flex items-center gap-2">
-              👤 Developer Profile
-            </h1>
-            <p className="text-sm font-mono text-text-secondary mt-1">{address}</p>
-            <a href={getBscscanAddressUrl(address)} target="_blank" rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-brand hover:underline mt-1">
-              <ExternalLink className="w-3 h-3" /> View on BSCScan
-            </a>
+      <div className="card">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-white">Developer Profile</h1>
+          <a 
+            href={getBscscanAddressUrl(address)} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="btn-secondary text-sm flex items-center gap-1"
+          >
+            <ExternalLink className="w-3 h-3" /> BSCScan
+          </a>
+        </div>
+
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-16 h-16 rounded-full bg-brand/10 flex items-center justify-center text-2xl">
+            {data.badge === "Trusted" ? "🛡️" : data.badge === "New" ? "🌱" : "⚠️"}
           </div>
-          <div className="text-center">
-            <div className={`text-4xl font-extrabold ${scoreColor}`}>{data.reputationScore}</div>
-            <div className="text-xs text-text-muted">Reputation</div>
-            <div className="text-sm font-medium mt-1">{data.badge}</div>
+          <div>
+            <p className="text-sm text-text-muted">Developer</p>
+            <p className="text-lg font-mono text-white">{formatAddress(address)}</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+          <div className="p-4 rounded-lg bg-[#0A0A0B] text-center">
+            <div className={`text-2xl font-bold ${scoreColor}`}>{data.reputationScore}</div>
+            <div className="text-xs text-text-muted">Reputation Score</div>
+          </div>
+          <div className="p-4 rounded-lg bg-[#0A0A0B] text-center">
+            <div className="text-2xl font-bold text-white">{data.totalLaunches}</div>
+            <div className="text-xs text-text-muted">Total Launches</div>
+          </div>
+          <div className="p-4 rounded-lg bg-[#0A0A0B] text-center">
+            <div className="text-2xl font-bold text-green-400">{data.successfulLaunches}</div>
+            <div className="text-xs text-text-muted">Successful</div>
+          </div>
+          <div className="p-4 rounded-lg bg-[#0A0A0B] text-center">
+            <div className="text-2xl font-bold text-red-400">{data.refundedLaunches}</div>
+            <div className="text-xs text-text-muted">Refunded</div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-3 rounded-lg bg-[#0A0A0B]">
+            <p className="text-xs text-text-muted">Wallet Age</p>
+            <p className="text-sm font-semibold text-white">{data.walletAge} days</p>
+          </div>
+          <div className="p-3 rounded-lg bg-[#0A0A0B]">
+            <p className="text-xs text-text-muted">Transaction Count</p>
+            <p className="text-sm font-semibold text-white">{data.txCount.toLocaleString()}</p>
           </div>
         </div>
 
         {data.refundedLaunches > 0 && (
-          <div className="mt-4 p-3 rounded-lg bg-red-400/5 border border-red-400/20 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-red-400" />
-            <span className="text-sm text-red-400">This developer has had a refund vote pass on a previous token.</span>
+          <div className="mt-6 p-4 rounded-lg bg-red-400/5 border border-red-400/20">
+            <div className="flex items-center gap-2">
+              <XCircle className="w-5 h-5 text-red-400" />
+              <p className="text-sm text-red-400 font-medium">
+                ⚠️ This developer has had {data.refundedLaunches} refund vote(s) pass
+              </p>
+            </div>
+            <p className="text-xs text-red-400/70 mt-1">
+              Invest in their tokens with caution.
+            </p>
           </div>
         )}
-      </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        {[
-          ["Wallet Age", `${data.walletAge}d`],
-          ["Transactions", String(data.txCount)],
-          ["BNB Balance", `${data.bnbBalance} BNB`],
-          ["Launches", String(data.totalLaunches)],
-        ].map(([l, v], i) => (
-          <div key={i} className="card text-center py-3">
-            <div className="text-lg font-bold text-white">{v}</div>
-            <div className="text-[10px] text-text-muted">{l}</div>
+        {data.refundedLaunches === 0 && data.totalLaunches > 0 && (
+          <div className="mt-6 p-4 rounded-lg bg-green-400/5 border border-green-400/20">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5 text-green-400" />
+              <p className="text-sm text-green-400 font-medium">
+                ✅ Clean record — no refund votes on any launches
+              </p>
+            </div>
           </div>
-        ))}
-      </div>
-
-      {/* Launch History */}
-      <div className="card">
-        <h2 className="text-lg font-bold text-white mb-4">Launch History</h2>
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="p-3 rounded-lg bg-[#0A0A0B]">
-            <div className="text-xl font-bold text-white">{data.totalLaunches}</div>
-            <div className="text-[10px] text-text-muted">Total</div>
-          </div>
-          <div className="p-3 rounded-lg bg-[#0A0A0B]">
-            <div className="text-xl font-bold text-green-400">{data.successfulLaunches}</div>
-            <div className="text-[10px] text-text-muted">Successful ✅</div>
-          </div>
-          <div className="p-3 rounded-lg bg-[#0A0A0B]">
-            <div className="text-xl font-bold text-red-400">{data.refundedLaunches}</div>
-            <div className="text-[10px] text-text-muted">Refunded ⚠️</div>
-          </div>
-        </div>
-        {data.totalLaunches === 0 && (
-          <p className="text-sm text-text-muted text-center mt-4">No launches on IronLock yet.</p>
         )}
       </div>
     </div>

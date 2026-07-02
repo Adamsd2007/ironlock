@@ -15,382 +15,217 @@ import type { ethers } from "ethers";
 // Must match the compiled IronLockFactory artifact.
 
 export const FACTORY_ABI = [
-  // ── Constants ──
+  // ===== Read Functions =====
   {
-    inputs: [],
-    name: "MIN_LP_LOCK_DAYS",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [],
+    "name": "launchFee",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "MIN_VESTING_DAYS",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [],
+    "name": "tokenCount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "MAX_DEV_BPS",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [],
+    "name": "MIN_LP_LOCK_DAYS",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "ANTI_SNIPE_SECONDS",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [],
+    "name": "MIN_VESTING_DAYS",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "ANTI_SNIPE_MAX_BNB",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [],
+    "name": "MAX_DEV_BPS",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "DAILY_SELL_CAP_BPS",
-    outputs: [{ internalType: "uint16", name: "", type: "uint16" }],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [],
+    "name": "ANTI_SNIPE_SECONDS",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "DEV_STAKE_AMOUNT",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [],
+    "name": "ANTI_SNIPE_MAX_BNB",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
   },
-  // ── Launch ──
   {
-    inputs: [
-      { internalType: "string", name: "name", type: "string" },
-      { internalType: "string", name: "symbol", type: "string" },
-      { internalType: "uint256", name: "totalSupply", type: "uint256" },
-      { internalType: "uint256", name: "raiseCap", type: "uint256" },
-      { internalType: "uint256", name: "lpLockDays", type: "uint256" },
-      { internalType: "uint256", name: "vestingDays", type: "uint256" },
-      { internalType: "uint16", name: "devAllocationBps", type: "uint16" },
-      { internalType: "uint256", name: "eligibilityDeadline", type: "uint256" },
-      { internalType: "bytes", name: "eligibilitySignature", type: "bytes" },
-      { internalType: "uint256", name: "softCapBps", type: "uint256" },
-      { internalType: "uint256", name: "presaleDays", type: "uint256" },
+    "inputs": [],
+    "name": "DAILY_SELL_CAP_BPS",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DEV_STAKE_AMOUNT",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "getTokenInfo",
+    "outputs": [
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "symbol", "type": "string" },
+      { "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
+      { "internalType": "uint256", "name": "raiseCap", "type": "uint256" },
+      { "internalType": "uint256", "name": "lpLockDays", "type": "uint256" },
+      { "internalType": "uint256", "name": "vestingDays", "type": "uint256" },
+      { "internalType": "uint256", "name": "devAllocationBps", "type": "uint256" },
+      { "internalType": "uint256", "name": "launchTime", "type": "uint256" },
+      { "internalType": "uint256", "name": "totalRaised", "type": "uint256" },
+      { "internalType": "uint256", "name": "milestoneReleased", "type": "uint256" },
+      { "internalType": "bool", "name": "active", "type": "bool" },
+      { "internalType": "address", "name": "dev", "type": "address" },
+      { "internalType": "uint256", "name": "antiSnipeEnd", "type": "uint256" },
+      { "internalType": "uint256", "name": "safetyScore", "type": "uint256" }
     ],
-    name: "launchToken",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
-  // ── Contribute ──
   {
-    inputs: [
-      { internalType: "address", name: "tokenAddr", type: "address" },
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "getLPStatus",
+    "outputs": [
+      { "internalType": "bool", "name": "added", "type": "bool" },
+      { "internalType": "address", "name": "pair", "type": "address" },
+      { "internalType": "uint256", "name": "lockedAmount", "type": "uint256" },
+      { "internalType": "uint256", "name": "unlockTime", "type": "uint256" },
+      { "internalType": "bool", "name": "claimable", "type": "bool" }
     ],
-    name: "contribute",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
-  // ── Milestones ──
   {
-    inputs: [
-      { internalType: "address", name: "tokenAddr", type: "address" },
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "getTokenAccountingStatus",
+    "outputs": [
+      { "internalType": "uint256", "name": "totalRaised", "type": "uint256" },
+      { "internalType": "uint256", "name": "trackedInContract", "type": "uint256" },
+      { "internalType": "uint256", "name": "releasedToDev", "type": "uint256" }
     ],
-    name: "releaseMilestone",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
-  // ── Refund ──
   {
-    inputs: [
-      { internalType: "address", name: "tokenAddr", type: "address" },
+    "inputs": [{ "internalType": "address", "name": "account", "type": "address" }],
+    "name": "isBlacklisted",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "dev", "type": "address" }],
+    "name": "devLastActivity",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "getAntiSnipeEnd",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "getTokenAddresses",
+    "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+
+  // ===== Write Functions =====
+  {
+    "inputs": [
+      { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "string", "name": "symbol", "type": "string" },
+      { "internalType": "uint256", "name": "totalSupply", "type": "uint256" },
+      { "internalType": "uint256", "name": "raiseCap", "type": "uint256" },
+      { "internalType": "uint256", "name": "lpLockDays", "type": "uint256" },
+      { "internalType": "uint256", "name": "vestingDays", "type": "uint256" },
+      { "internalType": "uint256", "name": "devAllocationBps", "type": "uint256" },
+      { "internalType": "uint256", "name": "eligibilityDeadline", "type": "uint256" },
+      { "internalType": "bytes", "name": "eligibilitySignature", "type": "bytes" },
+      { "internalType": "uint256", "name": "softCapBps", "type": "uint256" },
+      { "internalType": "uint256", "name": "presaleDays", "type": "uint256" }
     ],
-    name: "startRefundVote",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "launchToken",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "payable",
+    "type": "function"
   },
   {
-    inputs: [
-      { internalType: "address", name: "tokenAddr", type: "address" },
-      { internalType: "bool", name: "voteYes", type: "bool" },
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "contribute",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "releaseMilestone",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "bool", "name": "vote", "type": "bool" }
     ],
-    name: "castRefundVote",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "voteRefund",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
-      { internalType: "address", name: "tokenAddr", type: "address" },
-    ],
-    name: "executeRefund",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "claimRefund",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
-      { internalType: "address", name: "tokenAddr", type: "address" },
-    ],
-    name: "claimRefund",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  // ── Dev Activity ──
-  {
-    inputs: [],
-    name: "updateDevActivity",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  // ── View Functions ──
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
-    name: "tokens",
-    outputs: [
-      { internalType: "address", name: "tokenAddress", type: "address" },
-      { internalType: "address", name: "dev", type: "address" },
-      { internalType: "string", name: "name", type: "string" },
-      { internalType: "string", name: "symbol", type: "string" },
-      { internalType: "uint256", name: "totalSupply", type: "uint256" },
-      { internalType: "uint256", name: "raiseCap", type: "uint256" },
-      { internalType: "uint256", name: "totalRaised", type: "uint256" },
-      { internalType: "uint256", name: "lpLockDays", type: "uint256" },
-      { internalType: "uint256", name: "vestingDays", type: "uint256" },
-      { internalType: "uint16", name: "devAllocationBps", type: "uint16" },
-      { internalType: "uint256", name: "launchTime", type: "uint256" },
-      { internalType: "uint256", name: "antiSnipeEnd", type: "uint256" },
-      { internalType: "uint8", name: "milestoneReleased", type: "uint8" },
-      { internalType: "uint256", name: "milestone1Time", type: "uint256" },
-      { internalType: "uint256", name: "milestone2Time", type: "uint256" },
-      { internalType: "uint256", name: "milestone3Time", type: "uint256" },
-      { internalType: "uint8", name: "safetyScore", type: "uint8" },
-      { internalType: "bool", name: "active", type: "bool" },
-      { internalType: "bool", name: "refundVoteActive", type: "bool" },
-    ],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "addLiquidityToPancakeSwap",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "getAllTokens",
-    outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
-    stateMutability: "view",
-    type: "function",
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "claimLPTokens",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "tokenCount",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "tokenAddr", type: "address" }],
-    name: "getSafetyScore",
-    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "launchFee",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "treasury",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
-    name: "isIronLockToken",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
-    name: "isBlacklisted",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      { internalType: "address", name: "tokenAddr", type: "address" },
-      { internalType: "address", name: "contributor", type: "address" },
-    ],
-    name: "contributions",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
-    name: "devLastActivity",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "tokenAddr", type: "address" }],
-    name: "isRefundVotePassed",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    name: "allTokens",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  // ── Dev Stake ──
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }],
-    name: "devStakes",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "insurancePool",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "tokenAddr", type: "address" }],
-    name: "claimDevStake",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  // ── Events ──
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "token", type: "address" },
-      { indexed: true, internalType: "address", name: "dev", type: "address" },
-      { indexed: false, internalType: "string", name: "name", type: "string" },
-      { indexed: false, internalType: "string", name: "symbol", type: "string" },
-      { indexed: false, internalType: "uint256", name: "totalSupply", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "raiseCap", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "lpLockDays", type: "uint256" },
-      { indexed: false, internalType: "uint256", name: "vestingDays", type: "uint256" },
-      { indexed: false, internalType: "uint16", name: "devAllocationBps", type: "uint16" },
-      { indexed: false, internalType: "uint8", name: "safetyScore", type: "uint8" },
-    ],
-    name: "TokenLaunched",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "token", type: "address" },
-      { indexed: true, internalType: "address", name: "contributor", type: "address" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
-    ],
-    name: "Contributed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "token", type: "address" },
-      { indexed: false, internalType: "uint8", name: "milestone", type: "uint8" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
-    ],
-    name: "MilestoneReleased",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "token", type: "address" },
-    ],
-    name: "RefundVoteStarted",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "dev", type: "address" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
-    ],
-    name: "DevStakeSlashed",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "dev", type: "address" },
-      { indexed: false, internalType: "uint256", name: "amount", type: "uint256" },
-    ],
-    name: "DevStakeClaimed",
-    type: "event",
-  },
-  // ── Sybil Protection ──
-  {
-    inputs: [
-      { internalType: "address", name: "tokenAddr", type: "address" },
-      { internalType: "address", name: "suspiciousWallet", type: "address" },
-      { internalType: "string", name: "reason", type: "string" },
-    ],
-    name: "reportSuspiciousWallet",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }, { internalType: "address", name: "", type: "address" }],
-    name: "hasContributed",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [{ internalType: "address", name: "", type: "address" }, { internalType: "address", name: "", type: "address" }],
-    name: "isBlockedContributor",
-    outputs: [{ internalType: "bool", name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "token", type: "address" },
-      { indexed: true, internalType: "address", name: "reporter", type: "address" },
-      { indexed: true, internalType: "address", name: "suspiciousWallet", type: "address" },
-      { indexed: false, internalType: "string", name: "reason", type: "string" },
-    ],
-    name: "WalletReported",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      { indexed: true, internalType: "address", name: "token", type: "address" },
-      { indexed: true, internalType: "address", name: "wallet", type: "address" },
-    ],
-    name: "WalletBlocked",
-    type: "event",
-  },
+    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
+    "name": "startRefundVote",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ] as const;
 
 // ── Token ABI (minimal for frontend reads) ─

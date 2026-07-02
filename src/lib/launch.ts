@@ -46,7 +46,7 @@ export async function launchToken(params: LaunchParams): Promise<{
         BigInt(params.softCapBps),
         BigInt(params.presaleDays),
       ],
-      // @ts-expect-error — value is accepted by wagmi writeContract at runtime
+      // value is now typed correctly in the new payable ABI
       value: parseEther("0.11"), // launch fee 0.01 + dev stake 0.1 BNB
       gas: 8_000_000n, // Cap gas for token deployment (avoids RPC limit)
     } as any);
@@ -155,14 +155,14 @@ export async function releaseMilestone(
 // ── Cast Refund Vote ─────────────────────
 export async function castRefundVote(
   tokenAddress: string,
-  voteYes: boolean
+  vote: boolean
 ): Promise<{ success: boolean; txHash?: string; error?: string }> {
   try {
     const txHash = await writeContract(wagmiConfig, {
       address: FACTORY_ADDRESS,
       abi: FACTORY_ABI,
-      functionName: "castRefundVote",
-      args: [tokenAddress as `0x${string}`, voteYes],
+      functionName: "voteRefund",
+      args: [tokenAddress as `0x${string}`, vote],
     });
 
     await waitForTransactionReceipt(wagmiConfig, {
@@ -230,30 +230,35 @@ export async function fetchTokenInfo(
     const info = await readContract(wagmiConfig, {
       address: FACTORY_ADDRESS,
       abi: FACTORY_ABI,
-      functionName: "tokens",
+      functionName: "getTokenInfo",
       args: [tokenAddress as `0x${string}`],
     });
 
+    // getTokenInfo returns: name, symbol, totalSupply, raiseCap, lpLockDays,
+    // vestingDays, devAllocationBps, launchTime, totalRaised, milestoneReleased,
+    // active, dev, antiSnipeEnd, safetyScore
+    const launchTime = info[7] as bigint;
+
     return {
-      tokenAddress: info[0] as string,
-      dev: info[1] as string,
-      name: info[2] as string,
-      symbol: info[3] as string,
-      totalSupply: info[4] as bigint,
-      raiseCap: info[5] as bigint,
-      totalRaised: info[6] as bigint,
-      lpLockDays: info[7] as bigint,
-      vestingDays: info[8] as bigint,
-      devAllocationBps: info[9] as number,
-      launchTime: info[10] as bigint,
-      antiSnipeEnd: info[11] as bigint,
-      milestoneReleased: info[12] as number,
-      milestone1Time: info[13] as bigint,
-      milestone2Time: info[14] as bigint,
-      milestone3Time: info[15] as bigint,
-      safetyScore: info[16] as number,
-      active: info[17] as boolean,
-      refundVoteActive: info[18] as boolean,
+      tokenAddress,
+      dev: info[11] as string,
+      name: info[0] as string,
+      symbol: info[1] as string,
+      totalSupply: info[2] as bigint,
+      raiseCap: info[3] as bigint,
+      totalRaised: info[8] as bigint,
+      lpLockDays: info[4] as bigint,
+      vestingDays: info[5] as bigint,
+      devAllocationBps: Number(info[6]),
+      launchTime,
+      antiSnipeEnd: info[12] as bigint,
+      milestoneReleased: Number(info[9]),
+      milestone1Time: launchTime,
+      milestone2Time: launchTime + BigInt(30 * 86400),
+      milestone3Time: launchTime + BigInt(90 * 86400),
+      safetyScore: Number(info[13]),
+      active: info[10] as boolean,
+      refundVoteActive: false,
     };
   } catch (err) {
     console.error("Fetch token info failed:", err);
@@ -267,9 +272,10 @@ export async function fetchAllTokens(): Promise<string[]> {
     const tokens = await readContract(wagmiConfig, {
       address: FACTORY_ADDRESS,
       abi: FACTORY_ABI,
-      functionName: "getAllTokens",
+      functionName: "getTokenAddresses",
+      args: [FACTORY_ADDRESS],
     });
-    return (tokens as string[]).reverse(); // newest first
+    return [...(tokens as string[])].reverse(); // newest first
   } catch (err) {
     console.error("Fetch all tokens failed:", err);
     return [];

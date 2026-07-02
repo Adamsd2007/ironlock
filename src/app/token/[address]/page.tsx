@@ -215,7 +215,7 @@ function FundAccounting({ tokenAddr }: { tokenAddr: string }) {
     args: [tokenAddr as `0x${string}`],
   });
   if (!data) return null;
-  const [totalRaisedRaw, trackedRaw, releasedRaw] = data as bigint[];
+  const [totalRaisedRaw, trackedRaw, releasedRaw] = data as unknown as bigint[];
   const raised = Number(totalRaisedRaw) / 1e18;
   const tracked = Number(trackedRaw) / 1e18;
   const released = Number(releasedRaw) / 1e18;

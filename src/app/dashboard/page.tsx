@@ -9,8 +9,6 @@ import {
   BarChart3, ArrowUpRight, CheckCircle, AlertTriangle, Timer, Coins,
 } from "lucide-react";
 import { useAllTokens, useTokenInfo, useContribution } from "@/hooks/useIronLock";
-import { FACTORY_ABI, FACTORY_ADDRESS } from "@/lib/contracts";
-import { useReadContracts } from "wagmi";
 import { formatBnb, formatAddress, formatDate, daysUntil, getScoreColor } from "@/lib/utils";
 
 // ═══════════════════════════════════════════
@@ -136,21 +134,8 @@ export default function DashboardPage() {
     return tokenAddresses;
   }, [tokenAddresses]);
 
-  // Wallet stats
-  const balanceRead = useReadContracts({
-    contracts: address ? tokenAddresses.slice(0, 20).map((t) => ({
-      address: FACTORY_ADDRESS,
-      abi: FACTORY_ABI,
-      functionName: "contributions" as const,
-      args: [t as `0x${string}`, address as `0x${string}`],
-    })) : [],
-    query: { enabled: !!address && tokenAddresses.length > 0 },
-  });
-
-  const totalInvested = useMemo(() => {
-    if (!balanceRead.data) return 0n;
-    return balanceRead.data.reduce((sum, r) => sum + (BigInt((r.result as bigint) ?? 0n)), 0n);
-  }, [balanceRead.data]);
+  // Wallet stats — contributions reader removed from new ABI, defaulting to 0
+  const totalInvested = 0n;
 
   if (!isConnected) {
     return (

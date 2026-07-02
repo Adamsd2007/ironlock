@@ -11,33 +11,18 @@ import { FACTORY_ABI, FACTORY_ADDRESS, TOKEN_ABI, type TokenInfo } from "@/lib/c
 
 // ── Use All Tokens ───────────────────────
 export function useAllTokens() {
-  const { data: count } = useReadContract({
+  const { data: addresses, isLoading } = useReadContract({
     address: FACTORY_ADDRESS,
     abi: FACTORY_ABI,
-    functionName: "tokenCount",
-  });
-
-  const tokenCount = count ? Number(count) : 0;
-
-  // Build calls for each token index
-  const calls = Array.from({ length: Math.min(tokenCount, 50) }, (_, i) => ({
-    address: FACTORY_ADDRESS,
-    abi: FACTORY_ABI,
-    functionName: "allTokens" as const,
-    args: [BigInt(i)],
-  }));
-
-  const { data: addresses, isLoading } = useReadContracts({
-    contracts: calls,
-    query: { enabled: tokenCount > 0 },
+    functionName: "getTokenAddresses",
+    args: [FACTORY_ADDRESS],
   });
 
   const tokenAddresses: string[] = addresses
-    ?.map((r) => (r.result as string) || "")
-    .filter(Boolean)
-    .reverse() || [];
+    ? [...(addresses as string[])].reverse()
+    : [];
 
-  return { tokenAddresses, tokenCount, isLoading };
+  return { tokenAddresses, tokenCount: tokenAddresses.length, isLoading };
 }
 
 // ── Use Token Info ───────────────────────
@@ -45,33 +30,38 @@ export function useTokenInfo(tokenAddress: string | undefined) {
   const { data, isLoading, error } = useReadContract({
     address: FACTORY_ADDRESS,
     abi: FACTORY_ABI,
-    functionName: "tokens",
+    functionName: "getTokenInfo",
     args: tokenAddress ? [tokenAddress as `0x${string}`] : undefined,
     query: { enabled: !!tokenAddress },
   });
 
-  if (!data) return { info: null, isLoading, error };
+  if (!data || !tokenAddress) return { info: null, isLoading, error };
+
+  // getTokenInfo returns: name, symbol, totalSupply, raiseCap, lpLockDays,
+  // vestingDays, devAllocationBps, launchTime, totalRaised, milestoneReleased,
+  // active, dev, antiSnipeEnd, safetyScore
+  const launchTime = data[7] as bigint;
 
   const info: TokenInfo = {
-    tokenAddress: data[0] as string,
-    dev: data[1] as string,
-    name: data[2] as string,
-    symbol: data[3] as string,
-    totalSupply: data[4] as bigint,
-    raiseCap: data[5] as bigint,
-    totalRaised: data[6] as bigint,
-    lpLockDays: data[7] as bigint,
-    vestingDays: data[8] as bigint,
-    devAllocationBps: data[9] as number,
-    launchTime: data[10] as bigint,
-    antiSnipeEnd: data[11] as bigint,
-    milestoneReleased: data[12] as number,
-    milestone1Time: data[13] as bigint,
-    milestone2Time: data[14] as bigint,
-    milestone3Time: data[15] as bigint,
-    safetyScore: data[16] as number,
-    active: data[17] as boolean,
-    refundVoteActive: data[18] as boolean,
+    tokenAddress,
+    dev: data[11] as string,
+    name: data[0] as string,
+    symbol: data[1] as string,
+    totalSupply: data[2] as bigint,
+    raiseCap: data[3] as bigint,
+    totalRaised: data[8] as bigint,
+    lpLockDays: data[4] as bigint,
+    vestingDays: data[5] as bigint,
+    devAllocationBps: Number(data[6]),
+    launchTime,
+    antiSnipeEnd: data[12] as bigint,
+    milestoneReleased: Number(data[9]),
+    milestone1Time: launchTime,
+    milestone2Time: launchTime + BigInt(30 * 86400),
+    milestone3Time: launchTime + BigInt(90 * 86400),
+    safetyScore: Number(data[13]),
+    active: data[10] as boolean,
+    refundVoteActive: false,
   };
 
   return { info, isLoading, error };
@@ -92,19 +82,13 @@ export function useTokenBalance(
 }
 
 // ── Use Contribution ─────────────────────
+// NOTE: The new factory ABI does not expose per-user contribution amounts.
+// This hook returns 0n until a contributions reader is added to the contract.
 export function useContribution(
   tokenAddress: string | undefined,
   contributor: string | undefined
 ) {
-  return useReadContract({
-    address: FACTORY_ADDRESS,
-    abi: FACTORY_ABI,
-    functionName: "contributions",
-    args: tokenAddress && contributor
-      ? [tokenAddress as `0x${string}`, contributor as `0x${string}`]
-      : undefined,
-    query: { enabled: !!tokenAddress && !!contributor },
-  });
+  return { data: 0n, isLoading: false };
 }
 
 // ── Use Factory Constants ────────────────

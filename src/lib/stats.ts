@@ -58,18 +58,18 @@ export async function fetchLiveStats(): Promise<LiveStats> {
   const tokenCount = Number(tokenCountRaw);
 
   // Fetch all token addresses
-  const allTokens: string[] = await factory.getAllTokens();
+  const allTokens: string[] = await factory.getTokenAddresses(FACTORY_ADDRESS);
 
   // Sum totalRaised across all tokens
   let totalRaised = 0n;
-  // Batch reads: read tokens() for each address
+  // Batch reads: read getTokenInfo() for each address
   if (allTokens.length > 0) {
     // Read in batches of 10 to avoid RPC rate limits
     const batchSize = 10;
     for (let i = 0; i < allTokens.length; i += batchSize) {
       const batch = allTokens.slice(i, i + batchSize);
       const results = await Promise.all(
-        batch.map((addr) => factory.tokens(addr).catch(() => null))
+        batch.map((addr) => factory.getTokenInfo(addr).catch(() => null))
       );
       for (const info of results) {
         if (info && info.totalRaised) {
@@ -79,9 +79,8 @@ export async function fetchLiveStats(): Promise<LiveStats> {
     }
   }
 
-  // Fetch insurance pool
-  const insurancePoolRaw = await factory.insurancePool().catch(() => 0n);
-  const insurancePool = BigInt(insurancePoolRaw);
+  // Insurance pool removed from new ABI — default to 0
+  const insurancePool = 0n;
 
   // Update cache
   cache = {
