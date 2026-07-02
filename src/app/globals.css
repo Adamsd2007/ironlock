@@ -1,0 +1,288 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #4A9EFF;
+  --brand-dark: #3A7FD4;
+  --brand-secondary: #FF6B35;
+  --surface: #0A0A0B;
+  --surface-card: #141416;
+  --surface-border: #1F1F22;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--surface);
+  color: #FFFFFF;
+  font-family: "Inter", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ─────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2a2e;
+}
+
+/* ── Brand Glow ────────────────── */
+.brand-glow {
+  box-shadow: 0 0 20px rgba(74, 158, 255, 0.15),
+              0 0 40px rgba(74, 158, 255, 0.05);
+}
+
+.brand-text {
+  background: linear-gradient(135deg, #4A9EFF, #3A7FD4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Card ──────────────────────── */
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+  border-color: #2a2a2e;
+}
+
+/* ── Button Styles ─────────────── */
+.btn-primary {
+  background: linear-gradient(135deg, #4A9EFF, #3A7FD4);
+  color: #FFFFFF;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 15px;
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(74, 158, 255, 0.35);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #FFFFFF;
+  font-weight: 500;
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 15px;
+}
+.btn-secondary:hover {
+  border-color: var(--brand);
+  color: var(--brand);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #FF6B35, #E55A2B);
+  color: #FFFFFF;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 15px;
+}
+.btn-warning:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(255, 107, 53, 0.35);
+}
+
+/* ── Input Styles ──────────────── */
+.input-field {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: #FFFFFF;
+  font-size: 15px;
+  width: 100%;
+  transition: border-color 0.2s;
+  outline: none;
+}
+.input-field:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+}
+.input-field::placeholder {
+  color: #52525B;
+}
+
+/* ── Badge ─────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-blue {
+  background: rgba(74, 158, 255, 0.1);
+  color: #4A9EFF;
+  border: 1px solid rgba(74, 158, 255, 0.2);
+}
+.badge-green {
+  background: rgba(74, 158, 255, 0.1);
+  color: #4A9EFF;
+  border: 1px solid rgba(74, 158, 255, 0.2);
+}
+.badge-yellow {
+  background: rgba(250, 204, 21, 0.1);
+  color: #FACC15;
+  border: 1px solid rgba(250, 204, 21, 0.2);
+}
+.badge-red {
+  background: rgba(239, 68, 68, 0.1);
+  color: #EF4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.badge-orange {
+  background: rgba(255, 107, 53, 0.1);
+  color: #FF6B35;
+  border: 1px solid rgba(255, 107, 53, 0.2);
+}
+
+/* ── Lock Icon ─────────────────── */
+.lock-icon {
+  filter: drop-shadow(0 0 8px rgba(74, 158, 255, 0.3));
+}
+
+/* Alias for backward compat */
+.shield-icon {
+  filter: drop-shadow(0 0 8px rgba(74, 158, 255, 0.3));
+}
+
+/* ── Progress Steps ────────────── */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.step-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+.step-dot.active {
+  background: var(--brand);
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.4);
+}
+.step-dot.done {
+  background: var(--brand);
+}
+.step-dot.pending {
+  background: #3F3F46;
+}
+.step-line {
+  width: 40px;
+  height: 2px;
+  background: #3F3F46;
+  transition: background 0.3s;
+}
+.step-line.done {
+  background: var(--brand);
+}
+
+/* ── Score Ring ────────────────── */
+.score-ring {
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.score-ring svg {
+  transform: rotate(-90deg);
+}
+.score-ring .bg-circle {
+  fill: none;
+  stroke: #1F1F22;
+  stroke-width: 6;
+}
+.score-ring .fg-circle {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.8s ease;
+}
+.score-ring .score-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+/* ── Skeleton Loading ──────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #141416 25%,
+    #1F1F22 50%,
+    #141416 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  border-radius: 8px;
+}
+
+/* ── Ribbon ────────────────────── */
+.ribbon {
+  position: absolute;
+  top: 16px;
+  right: -6px;
+  background: var(--brand);
+  color: #FFFFFF;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 16px;
+  border-radius: 4px 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.ribbon::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  right: 0;
+  border: 3px solid var(--brand-dark);
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+}

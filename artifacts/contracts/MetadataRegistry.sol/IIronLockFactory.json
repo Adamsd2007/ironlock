@@ -1,0 +1,165 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "IIronLockFactory",
+  "sourceName": "contracts/MetadataRegistry.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "tokens",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "tokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "dev",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalSupply",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "raiseCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalRaised",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "lpLockDays",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "vestingDays",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "devAllocationBps",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint256",
+          "name": "launchTime",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "antiSnipeEnd",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "milestoneReleased",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "milestone1Time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "milestone2Time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "milestone3Time",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "safetyScore",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "active",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "refundVoteActive",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "maxContributionPerWallet",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "uniqueContributorCount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint16",
+          "name": "liquidityBps",
+          "type": "uint16"
+        },
+        {
+          "internalType": "uint256",
+          "name": "liquidityBNB",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "devBNB",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "softCap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "presaleEnd",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "softCapHit",
+          "type": "bool"
+        },
+        {
+          "internalType": "bool",
+          "name": "autoRefunded",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

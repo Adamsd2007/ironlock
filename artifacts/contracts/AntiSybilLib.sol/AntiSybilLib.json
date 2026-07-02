@@ -1,0 +1,10 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "AntiSybilLib",
+  "sourceName": "contracts/AntiSybilLib.sol",
+  "abi": [],
+  "bytecode": "0x6080806040523460175760399081601c823930815050f35b5f80fdfe5f80fdfea2646970667358221220cbc4298337d8deb4c04532be9aaf4a6d18bcafe64b2dfead91175a5b19e859ac64736f6c63430008190033",
+  "deployedBytecode": "0x5f80fdfea2646970667358221220cbc4298337d8deb4c04532be9aaf4a6d18bcafe64b2dfead91175a5b19e859ac64736f6c63430008190033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

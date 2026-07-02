@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -141,3 +142,14 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+=======
+node_modules/
+.next/
+.env
+.env.local
+.DS_Store
+*.log
+>>>>>>> 5af00be (Initial commit: IronLock launchpad with 88 tests passing)
+.env
+.env.local
+.env*.local
