@@ -425,20 +425,20 @@ npx hardhat run deploy/deploy.ts --network bscTestnet
 
 ### Project Timeline
 ```
-Q3 2024 (Current)
+Q3 2026 (Current)
 ├── ✅ Testnet deployment
 ├── ✅ 88 tests passing
 ├── ✅ Frontend complete
 ├── ✅ Grant application
 └── ⬜ Mainnet launch (post-grant)
 
-Q4 2024
+Q4 2026
 ├── ⬜ Mainnet deployment
 ├── ⬜ Marketing campaign
 ├── ⬜ Community growth
 └── ⬜ First token launches
 
-Q1 2025
+Q1 2027
 ├── ⬜ Mobile app
 ├── ⬜ Multi-chain support
 ├── ⬜ Advanced analytics
