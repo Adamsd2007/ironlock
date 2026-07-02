@@ -10,6 +10,19 @@
 
 ---
 
+## 🔗 Quick Links
+
+| | |
+| **Website** | https://ironlock.xyz |
+| **Launch App** | https://ironlock.xyz/launch |
+| **Explore Tokens** | https://ironlock.xyz/explore |
+| **GitHub** | https://github.com/Adamsd2007/ironlock |
+| **Twitter** | https://x.com/IronLockxyz |
+| **Telegram** | https://t.me/ironlock |
+| **BSCScan Factory** | [View Contract](https://testnet.bscscan.com/address/0x3107378fB8D7108081c1e70CFd64B23435551193) |
+| **BSCScan Registry** | [View Contract](https://testnet.bscscan.com/address/0x6B9e00122F0c0D5b62B72566EfBC3f0363A6b48D) |
+
+
 ## 📖 Table of Contents
 
 - [Overview](#-overview)
@@ -485,7 +498,7 @@ Q1 2027
 **MIT License** — See [LICENSE](LICENSE) for details.
 
 ```
-Copyright (c) 2024 Adamsd2007 / IronLock
+Copyright (c) 2026 Adamsd2007 / IronLock
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -516,19 +529,9 @@ SOFTWARE.
 - **BNB Chain** — Blockchain infrastructure
 - **PancakeSwap** — DEX integration
 
----
 
-## 📞 Contact & Support
 
-| Platform | Link |
-|----------|------|
-| **Website** | https://ironlock.xyz |
-| **Twitter/X** |https://x.com/IronLockxyz |
-| **Telegram** | https://t.me/ironlock |
-| **GitHub** | https://github.com/Adamsd2007/ironlock |
-| **Email** | a.sedqy2007@gmail.com |
 
----
 
 ## ⭐ Star Us!
 
@@ -546,3 +549,8 @@ If you find IronLock useful, please ⭐ this repository!
 **IronLock — Where Rugpulls Go to Die** 🛡️
 
 ---
+
+Email contact:
+a.sedqy2007@gmail.com
+
+
