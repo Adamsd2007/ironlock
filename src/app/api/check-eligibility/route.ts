@@ -1,15 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { keccak256, encodeAbiParameters, parseAbiParameters } from "viem";
-import { privateKeyToAccount } from "viem/accounts";
+import { ethers } from "ethers";
 
 // ── Constants ────────────────────────────
 const MIN_WALLET_AGE_DAYS = 7;
 const MIN_TX_COUNT = 10;
 const ELIGIBILITY_TTL_SECONDS = 3600;
 const BSCSCAN_API_URL = "https://api.bscscan.com/api";
-const BSCSCAN_API_KEY = process.env.BSCSCAN_API_KEY || "";
-const IS_DEV = process.env.NODE_ENV === "development";
-const SKIP_CHECK = IS_DEV && process.env.NEXT_PUBLIC_SKIP_WALLET_CHECK === "true";
 
 // ── In-Memory Rate Limiter ───────────────
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
@@ -26,88 +22,8 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
-// ── Types ────────────────────────────────
-interface EligibilityResult {
-  eligible: boolean;
-  reason: string;
-  walletAgeDays: number;
-  txCount: number;
-  signature: string | null;
-  deadline: number | null;
-}
-
-interface BscscanTx {
-  timeStamp: string;
-  hash: string;
-  from: string;
-  to: string;
-}
-
-// ── BSCScan API call ─────────────────────
-async function fetchTransactions(address: string): Promise<BscscanTx[]> {
-  const apiKeyParam = BSCSCAN_API_KEY ? `&apikey=${BSCSCAN_API_KEY}` : "";
-  const url = `${BSCSCAN_API_URL}?module=account&action=txlist&address=${address}&startblock=0&endblock=99999999&page=1&offset=50&sort=asc${apiKeyParam}`;
-
-  try {
-    const res = await fetch(url, { next: { revalidate: 0 } });
-    const data = await res.json();
-
-    if (data.status === "1" && Array.isArray(data.result)) {
-      return data.result as BscscanTx[];
-    }
-
-    // No transactions or error — return empty
-    return [];
-  } catch (err: any) {
-    console.error("[Eligibility] BSCScan fetch failed:", err.message);
-    throw new Error("Unable to verify wallet. Try again.");
-  }
-}
-
-// ── Eligibility check ────────────────────
-function checkEligibility(txs: BscscanTx[]): {
-  eligible: boolean;
-  reason: string;
-  walletAgeDays: number;
-  txCount: number;
-} {
-  const txCount = txs.length;
-  const now = Math.floor(Date.now() / 1000);
-
-  let walletAgeDays = 0;
-  if (txCount > 0) {
-    const firstTxTime = parseInt(txs[0].timeStamp, 10);
-    walletAgeDays = Math.floor((now - firstTxTime) / 86400);
-  }
-
-  const ageOk = walletAgeDays >= MIN_WALLET_AGE_DAYS;
-  const countOk = txCount >= MIN_TX_COUNT;
-
-  if (ageOk && countOk) {
-    return { eligible: true, reason: "Eligible", walletAgeDays, txCount };
-  }
-  if (!ageOk && !countOk) {
-    return { eligible: false, reason: "Wallet too new and not enough transactions", walletAgeDays, txCount };
-  }
-  if (!ageOk) {
-    return { eligible: false, reason: "Wallet too new", walletAgeDays, txCount };
-  }
-  return { eligible: false, reason: "Not enough transactions", walletAgeDays, txCount };
-}
-
 // ── GET handler ──────────────────────────
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const address = searchParams.get("address");
-
-  // Validate address
-  if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
-    return NextResponse.json({
-      eligible: false, reason: "Invalid wallet address",
-      walletAgeDays: 0, txCount: 0, signature: null, deadline: null,
-    } satisfies EligibilityResult, { status: 400 });
-  }
-
   // Rate limiting
   const ip = request.headers.get("x-forwarded-for") || "unknown";
   if (isRateLimited(ip)) {
@@ -117,59 +33,170 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Dev bypass — only in development mode
-  if (SKIP_CHECK) {
+  // Get wallet address from query
+  const { searchParams } = new URL(request.url);
+  const address = searchParams.get("address");
+
+  if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    return NextResponse.json({
+      eligible: false,
+      reason: "Invalid wallet address",
+      walletAgeDays: 0,
+      txCount: 0,
+      signature: null,
+      deadline: null,
+    }, { status: 400 });
+  }
+
+  // Dev bypass — ONLY when explicitly set to "true"
+  if (process.env.NEXT_PUBLIC_SKIP_WALLET_CHECK === "true") {
     const deadline = Math.floor(Date.now() / 1000) + ELIGIBILITY_TTL_SECONDS;
     let signature: string | null = null;
     const verifierKey = process.env.VERIFIER_PRIVATE_KEY;
     if (verifierKey?.startsWith("0x") && verifierKey.length === 66) {
-      const account = privateKeyToAccount(verifierKey as `0x${string}`);
-      const messageHash = keccak256(
-        encodeAbiParameters(parseAbiParameters("address, uint256"), [address as `0x${string}`, BigInt(deadline)])
+      const wallet = new ethers.Wallet(verifierKey);
+      const message = ethers.solidityPackedKeccak256(
+        ["address", "uint256"],
+        [address as string, deadline]
       );
-      signature = await account.signMessage({ message: { raw: messageHash } });
+      signature = await wallet.signMessage(ethers.getBytes(message));
     }
     return NextResponse.json({
-      eligible: true, reason: "Dev bypass", walletAgeDays: 999, txCount: 999, signature, deadline,
-    } satisfies EligibilityResult);
+      eligible: true,
+      reason: "Dev bypass enabled",
+      walletAgeDays: 999,
+      txCount: 999,
+      signature,
+      deadline,
+    });
+  }
+
+  // Call BSCScan API
+  const apiKey = process.env.BSCSCAN_API_KEY;
+  if (!apiKey) {
+    console.error("[Eligibility] BSCSCAN_API_KEY not set");
+    return NextResponse.json({
+      eligible: false,
+      reason: "Unable to verify wallet. Try again later.",
+      walletAgeDays: 0,
+      txCount: 0,
+      signature: null,
+      deadline: null,
+    });
   }
 
   try {
-    const txs = await fetchTransactions(address);
-    const eligibility = checkEligibility(txs);
+    const url =
+      `${BSCSCAN_API_URL}?module=account&action=txlist` +
+      `&address=${address}` +
+      `&startblock=0&endblock=99999999` +
+      `&page=1&offset=50` +
+      `&sort=asc&apikey=${apiKey}`;
 
-    let signature: string | null = null;
-    let deadline: number | null = null;
+    const response = await fetch(url);
+    const data = await response.json();
 
-    if (eligibility.eligible) {
-      const verifierKey = process.env.VERIFIER_PRIVATE_KEY;
-      if (!verifierKey?.startsWith("0x") || verifierKey.length !== 66) {
-        console.error("[Eligibility] VERIFIER_PRIVATE_KEY missing or invalid");
-        return NextResponse.json({
-          eligible: false, reason: "Server configuration error",
-          walletAgeDays: eligibility.walletAgeDays, txCount: eligibility.txCount,
-          signature: null, deadline: null,
-        } satisfies EligibilityResult, { status: 500 });
-      }
-
-      deadline = Math.floor(Date.now() / 1000) + ELIGIBILITY_TTL_SECONDS;
-      const account = privateKeyToAccount(verifierKey as `0x${string}`);
-      const messageHash = keccak256(
-        encodeAbiParameters(parseAbiParameters("address, uint256"), [address as `0x${string}`, BigInt(deadline)])
-      );
-      signature = await account.signMessage({ message: { raw: messageHash } });
+    // BSCScan error or no transactions — brand new wallet
+    if (data.status === "0") {
+      return NextResponse.json({
+        eligible: false,
+        walletAgeDays: 0,
+        txCount: 0,
+        reason:
+          "Wallet too new — needs at least " +
+          `${MIN_WALLET_AGE_DAYS} days old and ${MIN_TX_COUNT} transactions on BSC.`,
+        signature: null,
+        deadline: null,
+      });
     }
 
+    const transactions = data.result;
+    if (!Array.isArray(transactions) || transactions.length === 0) {
+      return NextResponse.json({
+        eligible: false,
+        walletAgeDays: 0,
+        txCount: 0,
+        reason: "No transactions found — wallet is too new.",
+        signature: null,
+        deadline: null,
+      });
+    }
+
+    // Calculate wallet age from first transaction
+    const firstTx = transactions[0];
+    const firstTxTime = parseInt(firstTx.timeStamp, 10);
+    const ageInDays = (Date.now() / 1000 - firstTxTime) / 86400;
+    const txCount = transactions.length;
+
+    // Check eligibility
+    const ageOk = ageInDays >= MIN_WALLET_AGE_DAYS;
+    const txOk = txCount >= MIN_TX_COUNT;
+
+    if (!ageOk) {
+      return NextResponse.json({
+        eligible: false,
+        walletAgeDays: Math.floor(ageInDays),
+        txCount,
+        reason:
+          `Wallet too new — ${Math.floor(ageInDays)} days old, ` +
+          `needs ${MIN_WALLET_AGE_DAYS}+ days.`,
+        signature: null,
+        deadline: null,
+      });
+    }
+
+    if (!txOk) {
+      return NextResponse.json({
+        eligible: false,
+        walletAgeDays: Math.floor(ageInDays),
+        txCount,
+        reason:
+          `Not enough transactions — ${txCount} found, ` +
+          `needs ${MIN_TX_COUNT}+.`,
+        signature: null,
+        deadline: null,
+      });
+    }
+
+    // Eligible — sign the proof
+    const verifierKey = process.env.VERIFIER_PRIVATE_KEY;
+    if (!verifierKey?.startsWith("0x") || verifierKey.length !== 66) {
+      console.error("[Eligibility] VERIFIER_PRIVATE_KEY missing or invalid");
+      return NextResponse.json({
+        eligible: false,
+        reason: "Server configuration error — cannot sign eligibility proof.",
+        walletAgeDays: Math.floor(ageInDays),
+        txCount,
+        signature: null,
+        deadline: null,
+      }, { status: 500 });
+    }
+
+    const deadline = Math.floor(Date.now() / 1000) + ELIGIBILITY_TTL_SECONDS;
+    const wallet = new ethers.Wallet(verifierKey);
+    const message = ethers.solidityPackedKeccak256(
+      ["address", "uint256"],
+      [address, deadline]
+    );
+    const signature = await wallet.signMessage(ethers.getBytes(message));
+
     return NextResponse.json({
-      eligible: eligibility.eligible, reason: eligibility.reason,
-      walletAgeDays: eligibility.walletAgeDays, txCount: eligibility.txCount,
-      signature, deadline,
-    } satisfies EligibilityResult);
-  } catch (err: any) {
-    console.error("[Eligibility] Error:", err.message);
+      eligible: true,
+      walletAgeDays: Math.floor(ageInDays),
+      txCount,
+      reason: "Eligible",
+      signature,
+      deadline,
+    });
+  } catch (error) {
+    console.error("[Eligibility] BSCScan fetch error:", error);
     return NextResponse.json({
-      eligible: false, reason: "Unable to verify wallet. Try again.",
-      walletAgeDays: 0, txCount: 0, signature: null, deadline: null,
-    } satisfies EligibilityResult, { status: 500 });
+      eligible: false,
+      reason: "Unable to verify wallet. Try again later.",
+      walletAgeDays: 0,
+      txCount: 0,
+      signature: null,
+      deadline: null,
+    });
   }
 }
