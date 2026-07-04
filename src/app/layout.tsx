@@ -7,21 +7,73 @@ import { NetworkBanner } from "@/components/WalletButton";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "IronLock — Rugpulls Are Impossible",
+  metadataBase: new URL('https://ironlock.xyz'),
+  title: {
+    default: 'IronLock — Rugpull-Proof Token Launchpad on BNB Chain',
+    template: '%s | IronLock',
+  },
   description:
-    "The first BNB Chain launchpad where rugpulls are technically impossible. Mandatory liquidity locks, vesting, and community protection enforced by smart contract.",
-  keywords: ["memecoin", "launchpad", "BNB Chain", "rugpull prevention", "BSC", "IronLock"],
+    'The only BNB Chain launchpad where rugpulls are technically impossible. Automatic LP locking, milestone-based fund release, community refund vote, and dev token vesting — all enforced on-chain.',
+  keywords: [
+    'IronLock',
+    'BNB Chain launchpad',
+    'rugpull proof',
+    'token launchpad',
+    'BSC launchpad',
+    'DeFi safety',
+    'LP lock',
+    'PancakeSwap',
+    'anti rugpull',
+    'token launch',
+    'memecoin launchpad',
+    'BNB Chain',
+    'BSC token',
+    'crypto launchpad',
+  ],
+  authors: [{ name: 'IronLock', url: 'https://ironlock.xyz' }],
+  creator: 'IronLock',
+  publisher: 'IronLock',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   openGraph: {
-    title: "IronLock — Rugpulls Are Impossible",
-    description: "The first BNB Chain launchpad where rugpulls are technically impossible. Mandatory liquidity locks, vesting, and community protection enforced by smart contract.",
-    siteName: "IronLock.xyz",
-    url: "https://ironlock.xyz",
-    type: "website",
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://ironlock.xyz',
+    siteName: 'IronLock',
+    title: 'IronLock — Rugpull-Proof Token Launchpad on BNB Chain',
+    description:
+      'The only BNB Chain launchpad where rugpulls are technically impossible. LP locking, milestone releases, community refund vote — all on-chain.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'IronLock — Rugpull-Proof Token Launchpad',
+      },
+    ],
   },
   twitter: {
-    card: "summary_large_image",
-    title: "IronLock — Rugpulls Are Impossible",
-    description: "BNB Chain launchpad where rugpulls are technically impossible. Iron-tight protection.",
+    card: 'summary_large_image',
+    site: '@IronLockxyz',
+    creator: '@IronLockxyz',
+    title: 'IronLock — Rugpull-Proof Token Launchpad on BNB Chain',
+    description: 'The only BNB Chain launchpad where rugpulls are technically impossible.',
+    images: ['/og-image.png'],
+  },
+  alternates: {
+    canonical: 'https://ironlock.xyz',
+  },
+  verification: {
+    google: 'GOOGLE_VERIFICATION_CODE',
   },
 };
 

@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+
 Sitemap: https://ironlock.xyz/sitemap.xml
+
+Host: https://ironlock.xyz
