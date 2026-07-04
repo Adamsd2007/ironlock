@@ -18,7 +18,6 @@ const BSCSCAN_CONTRACT_URL = `https://bscscan.com/address/${FACTORY_ADDRESS}`;
 const SOCIAL_LINKS = [
   { label: "X (@IronLockxyz)", href: "https://x.com/IronLockxyz" },
   { label: "Telegram", href: "https://t.me/ironlockxyz" },
-  { label: "GitHub", href: "https://github.com/Adamsd2007/ironlock" },
 ];
 
 const PLATFORM_LINKS = [
