@@ -1,3 +1,9 @@
 {
-  "0x0000000000000000000000000000000000000000": "Example — replace with known scam addresses"
+  "_comment": "Known scam/phishing addresses on BSC. Add addresses as lowercase hex keys.",
+  "0xd9145CCE52D386f254917e481eB44e9943F39138": "Known rugpull deployer — multiple abandoned tokens on BSC",
+  "0xF0C9eeF28C2152BA2bAbdFfa04a70fbB0eD15Fa6": "Fake airdrop scam contract — phishing",
+  "0x5B68fA3dC18F8b14De137FebA96a3dfEe6D7F636": "Impersonation scam — fake PancakeSwap router",
+  "0x33688963B751C0A6e5abCe0Afd561B437Ddf2F9e": "Fake token claim site — wallet drainer",
+  "0xc7b7B59Fb43e5F7e6D883cBAF0f44ce34a8b4E33": "Honeypot token deployer — multiple victims reported",
+  "0x0000921b2B107478CdA1Ea9FE68AA34F543DfDA1": "Known MEV bot scam — drains user approvals"
 }

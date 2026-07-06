@@ -9,8 +9,25 @@ const BSCSCAN_API_URL = "https://api.bscscan.com/api";
 
 // ── In-Memory Rate Limiter ───────────────
 const requestCounts = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_MAX_ENTRIES = 10_000;
+
+// Periodic cleanup: prevent unbounded Map growth from IP rotation attacks.
+// Runs at most once per 5 minutes, triggered by incoming requests.
+let lastCleanup = Date.now();
+function maybeCleanupRateLimiter(): void {
+  const now = Date.now();
+  if (now - lastCleanup < 300_000) return; // only every 5 min
+  lastCleanup = now;
+  if (requestCounts.size > RATE_LIMIT_MAX_ENTRIES) {
+    // Remove all expired entries
+    for (const [ip, record] of requestCounts) {
+      if (now > record.resetTime) requestCounts.delete(ip);
+    }
+  }
+}
 
 function isRateLimited(ip: string): boolean {
+  maybeCleanupRateLimiter();
   const now = Date.now();
   const record = requestCounts.get(ip);
   if (!record || now > record.resetTime) {

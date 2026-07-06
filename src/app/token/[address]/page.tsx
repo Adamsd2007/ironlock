@@ -23,6 +23,7 @@ import { useTokenInfo, useContribution, useAntiSnipeStatus } from "@/hooks/useIr
 import { FACTORY_ABI, FACTORY_ADDRESS } from "@/lib/contracts";
 import { TrustBadge } from "@/components/TrustBadge";
 import { contributeToToken, castRefundVote, claimRefund, startRefundVote } from "@/lib/launch";
+import { getRefundPool } from "@/lib/refund";
 import {
   formatBnb, formatTokens, formatPercent, formatAddress, formatDate,
   daysUntil, daysSince, formatTimeSinceLaunch,
@@ -53,13 +54,8 @@ function ProgressPill({ pct, color = "bg-brand" }: { pct: number; color?: string
   );
 }
 
-function getRefundPool(info: any): bigint {
-  let bps = 0n;
-  if (info.milestoneReleased >= 1) bps += 3300n;
-  if (info.milestoneReleased >= 2) bps += 3300n;
-  if (info.milestoneReleased >= 3) bps += 3400n;
-  const released = (info.totalRaised * bps) / 10000n;
-  return info.totalRaised - released;
+function getRefundPoolLocal(info: any): bigint {
+  return getRefundPool(info.totalRaised, info.milestoneReleased);
 }
 
 function formatBnbNum(wei: bigint): number {
@@ -403,8 +399,9 @@ export default function TokenPage() {
     ? Math.min(100, Number((BigInt(daysSinceLaunch) * 100n) / info.vestingDays)) : 0;
 
   const pancakeUrl = `https://pancakeswap.finance/swap?outputCurrency=${tokenAddress}&chain=bsc`;
-  const estimatedTokens = info.raiseCap > 0n && contributeAmount
-    ? (BigInt(Math.floor(parseFloat(contributeAmount) * 1e18)) * info.totalSupply) / info.raiseCap
+  const contributeNum = parseFloat(contributeAmount);
+  const estimatedTokens = info.raiseCap > 0n && contributeAmount && isFinite(contributeNum)
+    ? (BigInt(Math.floor(contributeNum * 1e18)) * info.totalSupply) / info.raiseCap
     : 0n;
 
   // ── Handlers ────────────────────────────
@@ -526,7 +523,7 @@ export default function TokenPage() {
           { label: "Total Raised", value: formatBnb(info.totalRaised) },
           { label: "Dev Allocation", value: formatPercent(info.devAllocationBps) },
           { label: "Days Since Launch", value: `${daysSinceLaunch}d` },
-          { label: "Refundable", value: formatBnb(getRefundPool(info)) },
+          { label: "Refundable", value: formatBnb(getRefundPoolLocal(info)) },
         ].map((s, i) => (
           <div key={i} className="card text-center py-3 px-2">
             <div className="text-lg font-bold text-white">{s.value}</div>
@@ -757,7 +754,7 @@ export default function TokenPage() {
         </h2>
 
         <div className="mb-5 p-3 rounded-lg bg-brand/5 border border-brand/10 text-sm text-center">
-          🛡️ Protected by IronLock — Up to <span className="text-white font-semibold">{formatBnb(getRefundPool(info))}</span> refundable if dev abandons project
+          🛡️ Protected by IronLock — Up to <span className="text-white font-semibold">{formatBnb(getRefundPoolLocal(info))}</span> refundable if dev abandons project
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -790,7 +787,7 @@ export default function TokenPage() {
               <div className="space-y-2 p-3 rounded-lg bg-[#0A0A0B]">
                 <div className="text-xs text-text-secondary">If refund passes today, you receive:</div>
                 <div className="text-xl font-bold text-white">
-                  {formatBnb((contribution * getRefundPool(info)) / info.totalRaised)}
+                  {formatBnb((contribution * getRefundPoolLocal(info)) / info.totalRaised)}
                 </div>
                 <div className="text-[11px] text-text-muted">
                   = ({formatBnb(contribution)} / {formatBnb(info.totalRaised)}) × refundable pool

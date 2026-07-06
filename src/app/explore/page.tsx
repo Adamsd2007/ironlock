@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import {
   Search, TrendingUp, Shield, ShieldCheck, Clock, ArrowUpRight,
-  Filter, ChevronDown, Lock, Zap, Sparkles, Loader2, Calculator,
+  ChevronDown, Lock, Zap, Sparkles, Loader2, Calculator,
   ChevronUp,
 } from "lucide-react";
 import { useAllTokens, useTokenInfo } from "@/hooks/useIronLock";
-import { formatAddress, formatBnb, formatTokens, getScoreColor, formatDate, daysUntil } from "@/lib/utils";
+import { formatAddress, formatBnb, formatTokens, formatDate, daysUntil } from "@/lib/utils";
+import { getRefundPool } from "@/lib/refund";
 import { TrustBadge } from "@/components/TrustBadge";
 
 const PAGE_SIZE = 12;
@@ -145,20 +146,16 @@ function TokenCard({ address, rank }: { address: string; rank?: number }) {
               <ShieldCheck className="w-3 h-3 text-green-400" />
             </div>
             <div className="text-[10px] text-text-muted/60 mt-0.5">
-              by <Link href={`/dev/${info.dev}`} className="hover:text-brand transition-colors">{formatAddress(info.dev)}</Link>
+              by <a href={`/dev/${info.dev}`} onClick={(e) => e.stopPropagation()} className="hover:text-brand transition-colors relative z-10">{formatAddress(info.dev)}</a>
             </div>
           </div>
         </div>
         <TrustBadge token={{ antiSnipeEnd: info.antiSnipeEnd, lpLockDays: info.lpLockDays, vestingDays: info.vestingDays, devAllocationBps: info.devAllocationBps, raiseCap: info.raiseCap, softCap: 0n, safetyScore: info.safetyScore }} size="sm" />
       </div>
 
-      {/* Risk dot + Contributor badge */}
+      {/* Risk dot */}
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         <RiskDot devAddress={info.dev} />
-        {(() => {
-          const c = info.totalRaised > 0n ? 1 : 0;
-          return <span className={`badge text-[10px] ${c >= 20 ? "badge-blue" : c >= 10 ? "badge-yellow" : "badge-red"}`}>{c >= 20 ? "🟢" : c >= 10 ? "🟡" : "🔴"} {c} wallets</span>;
-        })()}
       </div>
 
       <div className="mb-2">
@@ -186,18 +183,14 @@ function TokenCard({ address, rank }: { address: string; rank?: number }) {
 function TokenRefundCalc({ address, amount }: { address: string; amount: string }) {
   const { info, isLoading } = useTokenInfo(address);
   const investAmount = parseFloat(amount);
-  if (!address || !address.startsWith("0x") || investAmount <= 0 || isNaN(investAmount)) {
+  if (!address || !address.startsWith("0x") || investAmount <= 0 || isNaN(investAmount) || !isFinite(investAmount)) {
     return (<div className="p-4 rounded-xl bg-[#0A0A0B] border border-[#1F1F22]"><p className="text-xs text-text-muted">Enter a valid token address and investment amount</p></div>);
   }
   if (isLoading) return (<div className="p-4 rounded-xl bg-[#0A0A0B] border border-[#1F1F22] animate-pulse"><div className="h-8 skeleton w-full rounded" /></div>);
   if (!info) return (<div className="p-4 rounded-xl bg-[#0A0A0B] border border-[#1F1F22]"><p className="text-xs text-red-400">⚠️ Token not found on IronLock</p><p className="text-[10px] text-text-muted mt-1">Make sure this is a valid IronLock token address</p></div>);
 
-  let releasedBps = 0n;
-  if (info.milestoneReleased >= 1) releasedBps += 3300n;
-  if (info.milestoneReleased >= 2) releasedBps += 3300n;
-  if (info.milestoneReleased >= 3) releasedBps += 3400n;
   const investWei = BigInt(Math.floor(investAmount * 1e18));
-  const lockedFunds = info.totalRaised - ((info.totalRaised * releasedBps) / 10000n);
+  const lockedFunds = getRefundPool(info.totalRaised, info.milestoneReleased);
   const maxRefund = info.totalRaised > 0n ? (investWei * lockedFunds) / info.totalRaised : 0n;
   const tokenAmount = info.raiseCap > 0n && info.totalSupply > 0n ? (info.totalSupply * investWei) / info.raiseCap : 0n;
   const protectionPct = investAmount > 0 && info.totalRaised > 0n ? ((Number(maxRefund) / 1e18) / investAmount) * 100 : 0;
@@ -234,15 +227,21 @@ export default function ExplorePage() {
   const [calcAddr, setCalcAddr] = useState("");
   const [calcAmt, setCalcAmt] = useState("1");
 
-  // Sort & filter
+  // Sort & filter — token info is loaded per-card via useTokenInfo,
+  // so we can only filter by address here. Full sort/filter happens
+  // when the contract adds getTokensPaginated support.
   const processed = useMemo(() => {
     let list = [...tokenAddresses];
 
-    // Search filter
+    // Search filter (by address only — name/symbol info loads per-card)
     if (search.trim()) {
       const q = search.toLowerCase();
       list = list.filter((a) => a.toLowerCase().includes(q));
     }
+
+    // Filter: newest first is the default (contract returns newest last)
+    // Other sort modes (raised, score) require on-chain data per token
+    // and will be supported when getTokensPaginated is integrated.
 
     return list;
   }, [tokenAddresses, search]);

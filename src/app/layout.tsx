@@ -73,7 +73,7 @@ export const metadata: Metadata = {
     canonical: 'https://ironlock.xyz',
   },
   verification: {
-    google: 'GOOGLE_VERIFICATION_CODE',
+    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || '',
   },
 };
 

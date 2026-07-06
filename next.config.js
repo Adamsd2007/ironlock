@@ -7,7 +7,7 @@ const securityHeaders = [
       "default-src 'self'",
 
       // ── Scripts ──
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-inline'",
 
       // ── Styles (Google Fonts CSS) ──
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",

@@ -9,11 +9,17 @@ const MAX_GOPLUS_PER_MINUTE = 25;
 
 // ── GoPlus rate limiter ──────────────────
 const goPlusRequestTimes: number[] = [];
+const GOPLUS_MAX_STORED_TIMESTAMPS = 100;
 
 function canCallGoPlus(): boolean {
   const now = Date.now();
+  // Clean up old entries AND cap array size to prevent memory leak
   while (goPlusRequestTimes.length > 0 && goPlusRequestTimes[0] < now - 60_000) {
     goPlusRequestTimes.shift();
+  }
+  // Safety cap: if array somehow grows beyond limit, truncate oldest
+  if (goPlusRequestTimes.length > GOPLUS_MAX_STORED_TIMESTAMPS) {
+    goPlusRequestTimes.splice(0, goPlusRequestTimes.length - GOPLUS_MAX_STORED_TIMESTAMPS);
   }
   if (goPlusRequestTimes.length >= MAX_GOPLUS_PER_MINUTE) return false;
   goPlusRequestTimes.push(now);

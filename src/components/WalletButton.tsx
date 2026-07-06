@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useAccount, useBalance, useChainId, useSwitchChain } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
-  Copy, Check, ExternalLink, LogOut, Circle, AlertTriangle, ChevronDown,
+  Copy, Check, ExternalLink, LogOut, AlertTriangle, ChevronDown,
   Rocket, TrendingUp,
 } from "lucide-react";
 import { formatAddress, getBscscanAddressUrl } from "@/lib/utils";

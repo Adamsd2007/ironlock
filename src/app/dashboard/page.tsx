@@ -5,11 +5,10 @@ import Link from "next/link";
 import { useAccount } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
-  Rocket, TrendingUp, Clock, Shield, Lock, ExternalLink, Wallet,
-  BarChart3, ArrowUpRight, CheckCircle, AlertTriangle, Timer, Coins,
+  Rocket, TrendingUp, ExternalLink, Wallet,
 } from "lucide-react";
 import { useAllTokens, useTokenInfo, useContribution } from "@/hooks/useIronLock";
-import { formatBnb, formatAddress, formatDate, daysUntil, getScoreColor } from "@/lib/utils";
+import { formatBnb, formatAddress, daysUntil } from "@/lib/utils";
 
 // ═══════════════════════════════════════════
 // TOKEN CARD

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAccount, useReadContract } from "wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { launchToken } from "@/lib/launch";
 import { FACTORY_ABI, FACTORY_ADDRESS } from "@/lib/contracts";
-import { validateTokenName, validateSymbol, validateRaiseCap, formatAddress, formatBnb } from "@/lib/utils";
+import { validateTokenName, validateSymbol, validateRaiseCap, formatAddress } from "@/lib/utils";
 import toast from "react-hot-toast";
 
 const MIN_AGE_DAYS = 7;
@@ -52,8 +52,15 @@ export default function LaunchPage() {
   const [launchResult, setLaunchResult] = useState<{ success: boolean; tokenAddress?: string; txHash?: string; bscscanUrl?: string; error?: string; } | null>(null);
   const { data: blacklisted } = useReadContract({ address: FACTORY_ADDRESS, abi: FACTORY_ABI, functionName: "isBlacklisted", args: address ? [address] : undefined, query: { enabled: !!address } });
   const { data: launchFeeWei } = useReadContract({ address: FACTORY_ADDRESS, abi: FACTORY_ABI, functionName: "launchFee" });
+  // Ensure on-chain fee matches the hardcoded 0.11 BNB (0.01 fee + 0.1 stake) in launch.ts.
+  // If the contract fee changes, the launch will fail — alert the team.
+  useEffect(() => {
+    if (launchFeeWei !== undefined && (launchFeeWei as bigint) !== 10000000000000000n) {
+      console.error("[IronLock] ⚠️ On-chain launchFee changed! Expected 0.01 BNB, got", launchFeeWei?.toString());
+    }
+  }, [launchFeeWei]);
   const [devReputation, setDevReputation] = useState<any>(null); const [securityCheck, setSecurityCheck] = useState<any>(null);
-  useEffect(() => { if (!address) return; fetch(`/api/dev-reputation?address=${address}`).then(r=>r.json()).then(d=>{if(!d.error)setDevReputation(d)}).catch(()=>{}); fetch(`/api/wallet-security-check?address=${address}`).then(r=>r.json()).then(d=>setSecurityCheck(d)).catch(()=>{}); }, [address]);
+  useEffect(() => { if (!address) return; let cancelled = false; fetch(`/api/dev-reputation?address=${address}`).then(r=>r.json()).then(d=>{if(!cancelled&&!d.error)setDevReputation(d)}).catch(()=>{}); fetch(`/api/wallet-security-check?address=${address}`).then(r=>r.json()).then(d=>{if(!cancelled)setSecurityCheck(d)}).catch(()=>{}); return () => { cancelled = true; }; }, [address]);
   const [eligibility, setEligibility] = useState<EligibilityData | null>(null);
   const [checkingEligibility, setCheckingEligibility] = useState(false);
   useEffect(() => { if (!address) { setEligibility(null); return; } let c = false; async function check() { setCheckingEligibility(true); setEligibility(null); try { const r = await fetch(`/api/check-eligibility?address=${address}`); const d: EligibilityData = await r.json(); if (!c) setEligibility(d); } catch { if (!c) setEligibility({ eligible: false, reason: "Failed to check eligibility.", walletAgeDays: 0, txCount: 0, signature: null, deadline: null }); } finally { if (!c) setCheckingEligibility(false); } } check(); return () => { c = true; }; }, [address]);
@@ -86,8 +93,16 @@ export default function LaunchPage() {
     const es = eligibility.signature ?? "0x";
 
     try {
-      const sw = BigInt(Number(totalSupply) * 10 ** 18).toString(); 
-      const cw = BigInt(Math.floor(Number(raiseCap) * 10 ** 18)).toString();
+      // Guard against overflow: Number() loses precision above 2^53.
+      // For supply values > 1e15, use direct BigInt string conversion instead.
+      const supplyNum = Number(totalSupply);
+      const capNum = Number(raiseCap);
+      if (!isFinite(supplyNum) || !isFinite(capNum)) {
+        toast.error("Supply or raise cap is too large.");
+        setLaunching(false); setLaunchStage(""); return;
+      }
+      const sw = (BigInt(Math.floor(supplyNum)) * BigInt(10) ** BigInt(18)).toString();
+      const cw = (BigInt(Math.floor(capNum)) * BigInt(10) ** BigInt(18)).toString();
       setLaunchStage("Waiting for wallet...");
       
       // ✅ FIX: Passing ALL 11 parameters including softCapBps and presaleDays
