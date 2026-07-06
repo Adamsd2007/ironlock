@@ -81,8 +81,11 @@ export function useTokenBalance(
 }
 
 // ── Use Contribution ─────────────────────
-// NOTE: The new factory ABI does not expose per-user contribution amounts.
-// This hook returns 0n until a contributions reader is added to the contract.
+// NOTE: The current factory ABI does not expose per-user contribution amounts.
+// This is a known limitation — the contract stores contributions internally but
+// has no public getter. Until `getContribution(token, user)` is added to the
+// factory, this hook returns 0n. The token page refund calculator still works
+// because the user enters their investment amount manually.
 export function useContribution(
   tokenAddress: string | undefined,
   contributor: string | undefined

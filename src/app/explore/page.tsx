@@ -77,12 +77,30 @@ function FeaturedCard({ address }: { address: string }) {
 
 // ═══════════════════════════════════════════
 // RISK DOT (external security check)
+// Uses a module-level cache to avoid N+1 API calls across cards.
 // ═══════════════════════════════════════════
+const riskCache = new Map<string, { risk: string; ts: number }>();
+const RISK_CACHE_TTL = 30 * 60_000; // 30 minutes
+
 function RiskDot({ devAddress }: { devAddress: string }) {
   const [risk, setRisk] = useState<string | null>(null);
   useEffect(() => {
+    const cached = riskCache.get(devAddress.toLowerCase());
+    if (cached && Date.now() - cached.ts < RISK_CACHE_TTL) {
+      setRisk(cached.risk);
+      return;
+    }
+    let cancelled = false;
     fetch(`/api/wallet-security-check?address=${devAddress}`)
-      .then(r => r.json()).then(d => setRisk(d.riskLevel)).catch(() => {});
+      .then(r => r.json())
+      .then(d => {
+        if (!cancelled) {
+          setRisk(d.riskLevel);
+          riskCache.set(devAddress.toLowerCase(), { risk: d.riskLevel, ts: Date.now() });
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [devAddress]);
   if (!risk || risk === "clean") return null;
   return (
@@ -90,20 +108,6 @@ function RiskDot({ devAddress }: { devAddress: string }) {
       {risk === "danger" ? "🚨" : "⚠️"}
     </span>
   );
-}
-
-// ═══════════════════════════════════════════
-// LP BADGE
-// ═══════════════════════════════════════════
-function LPBadge({ tokenAddr }: { tokenAddr: string }) {
-  const [lp, setLp] = useState<string>("");
-  useEffect(() => {
-    const { FACTORY_ABI, FACTORY_ADDRESS } = require("@/lib/contracts");
-    // simplified: just show based on what we know
-    setLp(""); // hide by default to avoid spamming RPC
-  }, [tokenAddr]);
-  if (!lp) return null;
-  return <span className="badge badge-blue text-[10px]">{lp}</span>;
 }
 
 // ═══════════════════════════════════════════
@@ -148,12 +152,9 @@ function TokenCard({ address, rank }: { address: string; rank?: number }) {
         <TrustBadge token={{ antiSnipeEnd: info.antiSnipeEnd, lpLockDays: info.lpLockDays, vestingDays: info.vestingDays, devAllocationBps: info.devAllocationBps, raiseCap: info.raiseCap, softCap: 0n, safetyScore: info.safetyScore }} size="sm" />
       </div>
 
-      {/* Risk dot */}
-      <RiskDot devAddress={info.dev} />
-
-      {/* LP + Decentralization badges */}
+      {/* Risk dot + Contributor badge */}
       <div className="flex items-center gap-2 mb-2 flex-wrap">
-        <LPBadge tokenAddr={info.tokenAddress} />
+        <RiskDot devAddress={info.dev} />
         {(() => {
           const c = info.totalRaised > 0n ? 1 : 0;
           return <span className={`badge text-[10px] ${c >= 20 ? "badge-blue" : c >= 10 ? "badge-yellow" : "badge-red"}`}>{c >= 20 ? "🟢" : c >= 10 ? "🟡" : "🔴"} {c} wallets</span>;

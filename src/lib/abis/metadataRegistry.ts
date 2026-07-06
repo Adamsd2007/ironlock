@@ -24,3 +24,11 @@ export const METADATA_REGISTRY_ABI = [
 
 export const METADATA_REGISTRY_ADDRESS =
   (process.env.NEXT_PUBLIC_METADATA_REGISTRY_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+
+// Warn at import time if the address is not configured
+if (METADATA_REGISTRY_ADDRESS === "0x0000000000000000000000000000000000000000") {
+  console.warn(
+    "[IronLock] NEXT_PUBLIC_METADATA_REGISTRY_ADDRESS not set. " +
+    "Token metadata (logos, descriptions, social links) will not load."
+  );
+}

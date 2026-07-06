@@ -5,10 +5,7 @@
  * Results are cached for 60 seconds to limit RPC calls.
  */
 
-import { FACTORY_ABI } from "./contracts";
-
-// ── Constants ────────────────────────────
-const FACTORY_ADDRESS = process.env.NEXT_PUBLIC_FACTORY_ADDRESS || "0xa3B27bd5E98a35b0bbc9CA544Df5eB75D54f75d9";
+import { FACTORY_ABI, FACTORY_ADDRESS } from "./contracts";
 const BSC_RPC = process.env.NEXT_PUBLIC_BSC_RPC || "https://bsc-dataseed.binance.org";
 const CACHE_TTL_MS = 60_000; // 60 seconds
 
