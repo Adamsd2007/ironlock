@@ -58,7 +58,7 @@ export async function fetchLiveStats(): Promise<LiveStats> {
   const tokenCount = Number(tokenCountRaw);
 
   // Fetch all token addresses
-  const allTokens: string[] = await factory.getTokenAddresses(FACTORY_ADDRESS);
+  const allTokens: string[] = await factory.getAllTokens();
 
   // Sum totalRaised across all tokens
   let totalRaised = 0n;

@@ -14,8 +14,7 @@ export function useAllTokens() {
   const { data: addresses, isLoading } = useReadContract({
     address: FACTORY_ADDRESS,
     abi: FACTORY_ABI,
-    functionName: "getTokenAddresses",
-    args: [FACTORY_ADDRESS],
+    functionName: "getAllTokens",
   });
 
   const tokenAddresses: string[] = addresses

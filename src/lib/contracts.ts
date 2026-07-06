@@ -147,9 +147,29 @@ export const FACTORY_ABI = [
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "token", "type": "address" }],
-    "name": "getTokenAddresses",
+    "inputs": [],
+    "name": "getAllTokens",
     "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "offset", "type": "uint256" },
+      { "internalType": "uint256", "name": "limit", "type": "uint256" }
+    ],
+    "name": "getTokensPaginated",
+    "outputs": [
+      { "internalType": "address[]", "name": "result", "type": "address[]" },
+      { "internalType": "uint256", "name": "total", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "tokenAddr", "type": "address" }],
+    "name": "getSafetyScore",
+    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
     "stateMutability": "view",
     "type": "function"
   },
