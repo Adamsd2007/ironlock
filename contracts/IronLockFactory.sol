@@ -330,9 +330,13 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     // ── Dev Stake ──
     function claimDevStake(address tokenAddr) external nonReentrant {
         TokenInfo storage info = tokens[tokenAddr];
+        // Only the dev can claim. Must have completed all 3 milestones.
+        // Must NOT have been refunded (refund slashes the stake to 0 anyway,
+        // but the executed flag is a cleaner early-exit guard).
+        // checkLaunchSuccess() setting active=false no longer blocks this call.
         if (info.dev != msg.sender) revert NotDev();
-        if (!info.active) revert NotActive();
         if (info.milestoneReleased != 3) revert NotComplete();
+        if (refundVotes[tokenAddr].executed) revert Refunded();
         uint256 s = devStakes[tokenAddr]; if (s == 0) revert NoStake();
         devStakes[tokenAddr] = 0; (bool sent,) = msg.sender.call{value: s}(""); if (!sent) revert TransferFailed();
         emit DevStakeClaimed(msg.sender, s);
@@ -412,7 +416,11 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     }
     function checkLaunchSuccess(address tokenAddr) external {
         TokenInfo storage info = tokens[tokenAddr];
-        if (block.timestamp < info.launchTime + 90 days) revert Not90Days();
+        // All 3 milestones must be released before marking success.
+        // This prevents the milestone-3 race condition where someone calls
+        // checkLaunchSuccess at 90d before the dev releases the final milestone.
+        if (info.milestoneReleased != 3) revert NotComplete();
+        // Token must still be active (not refunded / not already marked).
         if (!info.active) revert Refunded();
         info.active = false;
         devSuccessfulLaunches[info.dev]++;

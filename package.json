@@ -12,6 +12,8 @@
     "hh:deploy": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run deploy/deploy.ts --network bscTestnet",
     "hh:deploy:mainnet": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run deploy/deploy.ts --network bsc",
     "hh:test": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat test",
+    "hh:simulate": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/simulate.ts --network hardhat",
+    "hh:simulate-edge": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/simulate-edge-cases.ts --network hardhat",
     "hh:verify": "cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat verify --network bscTestnet",
     "compile": "hardhat compile",
     "test": "hardhat test",
