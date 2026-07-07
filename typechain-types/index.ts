@@ -32,6 +32,8 @@ export type { ReentrancyGuard } from "./@openzeppelin/contracts/utils/Reentrancy
 export { ReentrancyGuard__factory } from "./factories/@openzeppelin/contracts/utils/ReentrancyGuard__factory";
 export type { Strings } from "./@openzeppelin/contracts/utils/Strings";
 export { Strings__factory } from "./factories/@openzeppelin/contracts/utils/Strings__factory";
+export type { AntiSybilLib } from "./contracts/AntiSybilLib";
+export { AntiSybilLib__factory } from "./factories/contracts/AntiSybilLib__factory";
 export type { IPancakeFactory } from "./contracts/IronLockFactory.sol/IPancakeFactory";
 export { IPancakeFactory__factory } from "./factories/contracts/IronLockFactory.sol/IPancakeFactory__factory";
 export type { IPancakeRouter02 } from "./contracts/IronLockFactory.sol/IPancakeRouter02";
@@ -50,3 +52,5 @@ export type { MockPancakeFactory } from "./contracts/mocks/MockPancakeRouter.sol
 export { MockPancakeFactory__factory } from "./factories/contracts/mocks/MockPancakeRouter.sol/MockPancakeFactory__factory";
 export type { MockPancakeRouter } from "./contracts/mocks/MockPancakeRouter.sol/MockPancakeRouter";
 export { MockPancakeRouter__factory } from "./factories/contracts/mocks/MockPancakeRouter.sol/MockPancakeRouter__factory";
+export type { PresaleLib } from "./contracts/PresaleLib";
+export { PresaleLib__factory } from "./factories/contracts/PresaleLib__factory";

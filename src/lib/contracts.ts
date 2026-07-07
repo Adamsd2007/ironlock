@@ -173,6 +173,41 @@ export const FACTORY_ABI = [
     "stateMutability": "view",
     "type": "function"
   },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "tokenAddr", "type": "address" },
+      { "internalType": "address", "name": "user", "type": "address" }
+    ],
+    "name": "getContribution",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "tokenAddr", "type": "address" }],
+    "name": "isRefundVoteActive",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "tokenAddr", "type": "address" }],
+    "name": "getContributorCount",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "address", "name": "dev", "type": "address" }],
+    "name": "getDevStats",
+    "outputs": [
+      { "internalType": "uint256", "name": "totalLaunches", "type": "uint256" },
+      { "internalType": "uint256", "name": "successful", "type": "uint256" },
+      { "internalType": "uint256", "name": "refunded", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
 
   // ===== Write Functions =====
   {

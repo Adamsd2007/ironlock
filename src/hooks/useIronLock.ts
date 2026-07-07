@@ -81,16 +81,19 @@ export function useTokenBalance(
 }
 
 // ── Use Contribution ─────────────────────
-// NOTE: The current factory ABI does not expose per-user contribution amounts.
-// This is a known limitation — the contract stores contributions internally but
-// has no public getter. Until `getContribution(token, user)` is added to the
-// factory, this hook returns 0n. The token page refund calculator still works
-// because the user enters their investment amount manually.
 export function useContribution(
   tokenAddress: string | undefined,
   contributor: string | undefined
 ) {
-  return { data: 0n, isLoading: false };
+  return useReadContract({
+    address: FACTORY_ADDRESS,
+    abi: FACTORY_ABI,
+    functionName: "getContribution",
+    args: tokenAddress && contributor
+      ? [tokenAddress as `0x${string}`, contributor as `0x${string}`]
+      : undefined,
+    query: { enabled: !!tokenAddress && !!contributor },
+  });
 }
 
 // ── Use Factory Constants ────────────────
@@ -113,6 +116,17 @@ export function useVestedAmount(tokenAddress: string | undefined) {
     address: tokenAddress as `0x${string}` | undefined,
     abi: TOKEN_ABI,
     functionName: "vestedAmount",
+    query: { enabled: !!tokenAddress },
+  });
+}
+
+// ── Use Refund Vote Status ───────────────
+export function useIsRefundVoteActive(tokenAddress: string | undefined) {
+  return useReadContract({
+    address: FACTORY_ADDRESS,
+    abi: FACTORY_ABI,
+    functionName: "isRefundVoteActive",
+    args: tokenAddress ? [tokenAddress as `0x${string}`] : undefined,
     query: { enabled: !!tokenAddress },
   });
 }

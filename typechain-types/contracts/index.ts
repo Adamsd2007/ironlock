@@ -7,4 +7,6 @@ import type * as metadataRegistrySol from "./MetadataRegistry.sol";
 export type { metadataRegistrySol };
 import type * as mocks from "./mocks";
 export type { mocks };
+export type { AntiSybilLib } from "./AntiSybilLib";
 export type { IronLockToken } from "./IronLockToken";
+export type { PresaleLib } from "./PresaleLib";

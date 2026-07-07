@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { ethers } from "ethers";
+import { FACTORY_ABI, FACTORY_ADDRESS } from "@/lib/contracts";
 
-const FACTORY_ADDRESS = process.env.NEXT_PUBLIC_FACTORY_ADDRESS || "0xa3B27bd5E98a35b0bbc9CA544Df5eB75D54f75d9";
 const BSC_RPC = process.env.NEXT_PUBLIC_BSC_RPC || "https://bsc-dataseed.binance.org";
 const BSCSCAN_API_KEY = process.env.BSCSCAN_API_KEY || "";
 const BSCSCAN_API_URL = "https://api.bscscan.com/api";
@@ -19,21 +20,14 @@ async function rpcCall(method: string, params: any[]): Promise<any> {
 
 // ── Call contract view functions ─────────
 async function getDevStats(wallet: string) {
-  // getDevStats(address) returns (total, successful, refunded)
-  const callData = "0x" +
-    "7d4e3b5d" + // getDevStats selector
-    wallet.toLowerCase().padStart(64, "0").slice(2);
-
-  const result = await rpcCall("eth_call", [{
-    to: FACTORY_ADDRESS, data: callData,
-  }, "latest"]);
-
-  if (!result || result === "0x") return { total: 0, successful: 0, refunded: 0 };
-  const decoded = Buffer.from(result.slice(2), "hex");
-  const total = Number("0x" + decoded.subarray(0, 32).toString("hex"));
-  const successful = Number("0x" + decoded.subarray(32, 64).toString("hex"));
-  const refunded = Number("0x" + decoded.subarray(64, 96).toString("hex"));
-  return { total, successful, refunded };
+  const provider = new ethers.JsonRpcProvider(BSC_RPC);
+  const factory = new ethers.Contract(FACTORY_ADDRESS, FACTORY_ABI, provider);
+  const result = await factory.getDevStats(wallet);
+  return {
+    total: Number(result.totalLaunches),
+    successful: Number(result.successful),
+    refunded: Number(result.refunded),
+  };
 }
 
 // ── Fetch BSCScan data ──────────────────

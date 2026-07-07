@@ -2,9 +2,42 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "AntiSybilLib",
   "sourceName": "contracts/AntiSybilLib.sol",
-  "abi": [],
-  "bytecode": "0x6080806040523460175760399081601c823930815050f35b5f80fdfe5f80fdfea2646970667358221220cbc4298337d8deb4c04532be9aaf4a6d18bcafe64b2dfead91175a5b19e859ac64736f6c63430008190033",
-  "deployedBytecode": "0x5f80fdfea2646970667358221220cbc4298337d8deb4c04532be9aaf4a6d18bcafe64b2dfead91175a5b19e859ac64736f6c63430008190033",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "max",
+          "type": "uint256"
+        }
+      ],
+      "name": "ExceedsPerWalletCap",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "max",
+          "type": "uint256"
+        }
+      ],
+      "name": "MaxAntiSnipeBNB",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x6080806040523460175760399081601c823930815050f35b5f80fdfe5f80fdfea26469706673582212207dff4e294472f0be56ab866a659a9d46abae2b76f001e75f6f20c931d4f20d6d64736f6c63430008190033",
+  "deployedBytecode": "0x5f80fdfea26469706673582212207dff4e294472f0be56ab866a659a9d46abae2b76f001e75f6f20c931d4f20d6d64736f6c63430008190033",
   "linkReferences": {},
   "deployedLinkReferences": {}
 }

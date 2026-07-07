@@ -2,9 +2,32 @@
   "_format": "hh-sol-artifact-1",
   "contractName": "PresaleLib",
   "sourceName": "contracts/PresaleLib.sol",
-  "abi": [],
-  "bytecode": "0x6080806040523460175760399081601c823930815050f35b5f80fdfe5f80fdfea26469706673582212203a0dd29ce9310d6b809b17730464a3ef8c84749c58d1564eb07e7b41333224bd64736f6c63430008190033",
-  "deployedBytecode": "0x5f80fdfea26469706673582212203a0dd29ce9310d6b809b17730464a3ef8c84749c58d1564eb07e7b41333224bd64736f6c63430008190033",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "days_",
+          "type": "uint256"
+        }
+      ],
+      "name": "InvalidDuration",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bps",
+          "type": "uint256"
+        }
+      ],
+      "name": "InvalidSoftcap",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x6080806040523460175760399081601c823930815050f35b5f80fdfe5f80fdfea2646970667358221220af7fba8383ceddf9fa641884d2854276f1c6b3a08bc4f0bb5ce0ac364a0cc8f664736f6c63430008190033",
+  "deployedBytecode": "0x5f80fdfea2646970667358221220af7fba8383ceddf9fa641884d2854276f1c6b3a08bc4f0bb5ce0ac364a0cc8f664736f6c63430008190033",
   "linkReferences": {},
   "deployedLinkReferences": {}
 }

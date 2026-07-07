@@ -8,6 +8,8 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { useAllTokens, useTokenInfo } from "@/hooks/useIronLock";
+import { useReadContract } from "wagmi";
+import { FACTORY_ABI, FACTORY_ADDRESS } from "@/lib/contracts";
 import { formatAddress, formatBnb, formatTokens, formatDate, daysUntil } from "@/lib/utils";
 import { getRefundPool } from "@/lib/refund";
 import { TrustBadge } from "@/components/TrustBadge";
@@ -116,9 +118,16 @@ function RiskDot({ devAddress }: { devAddress: string }) {
 // ═══════════════════════════════════════════
 function TokenCard({ address, rank }: { address: string; rank?: number }) {
   const { info, isLoading } = useTokenInfo(address);
+  const { data: contributorCount } = useReadContract({
+    address: FACTORY_ADDRESS, abi: FACTORY_ABI,
+    functionName: "getContributorCount",
+    args: [address as `0x${string}`],
+    query: { enabled: !!address },
+  });
   if (isLoading || !info) return <div className="card skeleton h-32" />;
 
   const progress = info.raiseCap > 0n ? Number((info.totalRaised * 10000n) / info.raiseCap) / 100 : 0;
+  const cc = contributorCount ? Number(contributorCount) : 0;
   const nowS = Math.floor(Date.now() / 1000);
   const launchS = Number(info.launchTime);
   const vestDays = Number(info.vestingDays);
@@ -153,9 +162,14 @@ function TokenCard({ address, rank }: { address: string; rank?: number }) {
         <TrustBadge token={{ antiSnipeEnd: info.antiSnipeEnd, lpLockDays: info.lpLockDays, vestingDays: info.vestingDays, devAllocationBps: info.devAllocationBps, raiseCap: info.raiseCap, softCap: 0n, safetyScore: info.safetyScore }} size="sm" />
       </div>
 
-      {/* Risk dot */}
+      {/* Risk dot + Contributor count */}
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         <RiskDot devAddress={info.dev} />
+        {cc > 0 && (
+          <span className={`badge text-[10px] ${cc >= 20 ? "badge-blue" : cc >= 10 ? "badge-yellow" : "badge-red"}`}>
+            {cc >= 20 ? "🟢" : cc >= 10 ? "🟡" : "🔴"} {cc} contributors
+          </span>
+        )}
       </div>
 
       <div className="mb-2">

@@ -91,6 +91,19 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     error RouterNotSet(); error LiquidityAlreadyAdded(); error RaiseIncomplete();
     error NoBNBForLiquidity(); error NoTokensForLiquidity(); error LPStillLocked();
     error AlreadyClaimed(); error TokenNotFound(); error OnlyDevCanClaim();
+    error Blacklisted(); error LowFeeOrStake();
+    error PresaleEnded(); error AutoRefunded(); error LPAlreadyAdded();
+    error Blocked(); error TooSmall(); error LowTokens();
+    error SoftcapNotHit(); error WasRefunded(); error AllReleased();
+    error NotYet(); error VoteActive(); error NeedMoreContributors();
+    error NothingToRelease(); error LowBalance(); error TransferFailed();
+    error NotActive(); error NotComplete(); error NoStake();
+    error Not90Days(); error Refunded(); error DevActiveRecently();
+    error NoFunds(); error NoVote(); error AlreadyVoted(); error NotContributor();
+    error Executed(); error Need51Percent(); error NotExecuted();
+    error NoContributionToRefund(); error NotDev(); error ZeroAddress();
+    error ExceedsWithdrawable(); error ProofExpired(); error ProofUsed();
+    error NotActiveOrRefunded(); error LowBalanceForRefund();
 
     // ── Events ──
     event TokenLaunched(address indexed token, address indexed dev, string name, string symbol, uint256 totalSupply, uint256 raiseCap, uint256 lpLockDays, uint256 vestingDays, uint16 devAllocationBps, uint8 safetyScore);
@@ -120,11 +133,11 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
 
     // ── Admin ──
     function setLaunchFee(uint256 _fee) external onlyOwner { launchFee = _fee; emit LaunchFeeUpdated(_fee); }
-    function setTreasury(address _t) external onlyOwner { require(_t != address(0)); treasury = _t; emit TreasuryUpdated(_t); }
-    function setPancakeRouter(address _r) external onlyOwner { require(_r != address(0)); pancakeRouter = _r; emit PancakeRouterUpdated(_r); }
-    function setVerifier(address _v) external onlyOwner { require(_v != address(0)); verifier = _v; emit VerifierUpdated(_v); }
-    function blacklistWallet(address w, string calldata r) external onlyOwner { require(w != address(0)); require(!isBlacklisted[w]); isBlacklisted[w] = true; emit BlacklistAdded(w, r); }
-    function unblacklistWallet(address w) external onlyOwner { require(isBlacklisted[w]); isBlacklisted[w] = false; }
+    function setTreasury(address _t) external onlyOwner { if (_t == address(0)) revert ZeroAddress(); treasury = _t; emit TreasuryUpdated(_t); }
+    function setPancakeRouter(address _r) external onlyOwner { if (_r == address(0)) revert ZeroAddress(); pancakeRouter = _r; emit PancakeRouterUpdated(_r); }
+    function setVerifier(address _v) external onlyOwner { if (_v == address(0)) revert ZeroAddress(); verifier = _v; emit VerifierUpdated(_v); }
+    function blacklistWallet(address w, string calldata r) external onlyOwner { if (w == address(0)) revert ZeroAddress(); if (isBlacklisted[w]) revert Blacklisted(); isBlacklisted[w] = true; emit BlacklistAdded(w, r); }
+    function unblacklistWallet(address w) external onlyOwner { if (!isBlacklisted[w]) revert Blacklisted(); isBlacklisted[w] = false; }
     function withdrawStuckBNB(uint256 amount) external onlyOwner {
         uint256 encumbered = insurancePool;
         for (uint256 i = 0; i < allTokens.length; i++) {
@@ -134,28 +147,28 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         uint256 withdrawable = address(this).balance > encumbered
             ? address(this).balance - encumbered
             : 0;
-        require(amount <= withdrawable, "Exceeds withdrawable");
+        if (amount > withdrawable) revert ExceedsWithdrawable();
         (bool s,) = owner().call{value: amount}("");
-        require(s);
+        if (!s) revert TransferFailed();
         emit StuckBNBWithdrawn(owner(), amount);
     }
 
     // ── Eligibility ──
     function _checkEligibility(address wallet, uint256 deadline, bytes calldata sig) internal {
         if (deadline == 0) return; // bypass: skip eligibility when deadline=0
-        require(block.timestamp <= deadline, "Proof expired");
-        require(!usedEligibilityProofs[deadline][wallet], "Proof used");
+        if (block.timestamp > deadline) revert ProofExpired();
+        if (usedEligibilityProofs[deadline][wallet]) revert ProofUsed();
         bytes32 h = keccak256(abi.encode(wallet, deadline));
-        require(ECDSA.recover(MessageHashUtils.toEthSignedMessageHash(h), sig) == verifier, "Invalid proof");
+        if (ECDSA.recover(MessageHashUtils.toEthSignedMessageHash(h), sig) != verifier) revert ProofUsed();
         usedEligibilityProofs[deadline][wallet] = true;
     }
 
     // ── Launch ──
     function launchToken(string calldata name, string calldata symbol, uint256 totalSupply, uint256 raiseCap, uint256 lpLockDays, uint256 vestingDays, uint16 devAllocationBps, uint256 eligibilityDeadline, bytes calldata eligibilitySignature, uint256 softCapBps, uint256 presaleDays) external payable nonReentrant returns (address) {
         _checkEligibility(msg.sender, eligibilityDeadline, eligibilitySignature);
-        require(!isBlacklisted[msg.sender], "Blacklisted");
+        if (isBlacklisted[msg.sender]) revert Blacklisted();
         uint256 req = launchFee + DEV_STAKE_AMOUNT;
-        require(msg.value >= req, "Low fee+stake");
+        if (msg.value < req) revert LowFeeOrStake();
         if (lpLockDays < MIN_LP_LOCK_DAYS) revert LPLockTooShort();
         if (vestingDays < MIN_VESTING_DAYS) revert VestingTooShort();
         if (devAllocationBps > MAX_DEV_BPS) revert DevAllocTooHigh();
@@ -198,9 +211,9 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         devLastActivity[msg.sender] = block.timestamp;
 
         uint256 excess = msg.value - req;
-        if (launchFee > 0) { (bool fs,) = treasury.call{value: launchFee}(""); require(fs); }
+        if (launchFee > 0) { (bool fs,) = treasury.call{value: launchFee}(""); if (!fs) revert TransferFailed(); }
         devStakes[address(token)] = DEV_STAKE_AMOUNT;
-        if (excess > 0) { (bool rf,) = msg.sender.call{value: excess}(""); require(rf); }
+        if (excess > 0) { (bool rf,) = msg.sender.call{value: excess}(""); if (!rf) revert TransferFailed(); }
         emit TokenLaunched(address(token), msg.sender, name, symbol, totalSupply, raiseCap, lpLockDays, vestingDays, devAllocationBps, score);
         return address(token);
     }
@@ -208,16 +221,16 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     // ── Contribute ──
     function contribute(address tokenAddr) external payable nonReentrant {
         TokenInfo storage info = tokens[tokenAddr];
-        require(info.active, "Token not active");
-        require(block.timestamp < info.presaleEnd, "Presale ended");
-        require(!info.autoRefunded, "Auto-refunded");
-        require(msg.value > 0, "No contribution");
-        require(!liquidityAdded[tokenAddr], "LP already added");
-        require(info.totalRaised + msg.value <= info.raiseCap, "Exceeds cap");
+        if (!info.active) revert TokenNotActive();
+        if (block.timestamp >= info.presaleEnd) revert PresaleEnded();
+        if (info.autoRefunded) revert AutoRefunded();
+        if (msg.value == 0) revert NoContribution();
+        if (liquidityAdded[tokenAddr]) revert LPAlreadyAdded();
+        if (info.totalRaised + msg.value > info.raiseCap) revert ExceedsRaiseCap();
         // Library: anti-snipe + max-per-wallet checks
         AntiSybilLib.checkContributionLimits(contributions[tokenAddr][msg.sender], msg.value, info.maxContributionPerWallet, ANTI_SNIPE_MAX_BNB, antiSnipeContribs[tokenAddr][msg.sender], info.antiSnipeEnd);
         if (block.timestamp < info.antiSnipeEnd) antiSnipeContribs[tokenAddr][msg.sender] += msg.value;
-        if (!isBlockedContributor[tokenAddr][msg.sender]) { /* OK */ } else revert("Blocked");
+        if (isBlockedContributor[tokenAddr][msg.sender]) revert Blocked();
 
         if (!hasContributed[tokenAddr][msg.sender]) { hasContributed[tokenAddr][msg.sender] = true; info.uniqueContributorCount++; }
         contributions[tokenAddr][msg.sender] += msg.value;
@@ -228,8 +241,8 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
 
         IronLockToken token = IronLockToken(tokenAddr);
         uint256 tokenAmount = PresaleLib.calcTokenAmount(info.totalSupply, msg.value, info.raiseCap);
-        require(tokenAmount > 0, "Too small");
-        require(token.balanceOf(address(token)) >= tokenAmount, "Low tokens");
+        if (tokenAmount == 0) revert TooSmall();
+        if (token.balanceOf(address(token)) < tokenAmount) revert LowTokens();
         token.factoryTransfer(msg.sender, tokenAmount);
         if (msg.sender == info.dev) devLastActivity[msg.sender] = block.timestamp;
         emit Contributed(tokenAddr, msg.sender, msg.value);
@@ -238,31 +251,28 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     // ── Milestones ──
     function releaseMilestone(address tokenAddr) external nonReentrant {
         TokenInfo storage info = tokens[tokenAddr];
-        require(info.active, "Token not active");
-        require(
-            info.totalRaised >= info.raiseCap || block.timestamp >= info.launchTime + 30 days,
-            "Raise incomplete"
-        );
-        if (info.softCap > 0) require(info.softCapHit, "Softcap not hit");
-        require(!info.autoRefunded, "Was refunded");
+        if (!info.active) revert TokenNotActive();
+        if (!(info.totalRaised >= info.raiseCap || block.timestamp >= info.launchTime + 30 days)) revert RaiseIncomplete();
+        if (info.softCap > 0 && !info.softCapHit) revert SoftcapNotHit();
+        if (info.autoRefunded) revert WasRefunded();
         uint8 next = info.milestoneReleased + 1;
-        require(next <= 3, "All released");
+        if (next > 3) revert AllReleased();
         uint256 releaseTime; uint256 releaseBps;
         if (next == 1) { releaseTime = info.milestone1Time; releaseBps = 3300; }
         else if (next == 2) { releaseTime = info.milestone2Time; releaseBps = 3300; }
         else { releaseTime = info.milestone3Time; releaseBps = 3400; }
-        require(block.timestamp >= releaseTime, "Not yet");
-        require(!info.refundVoteActive, "Vote active");
-        if (next == 2) require(info.uniqueContributorCount >= MIN_UNIQUE_CONTRIBUTORS, "Need 10+");
+        if (block.timestamp < releaseTime) revert NotYet();
+        if (info.refundVoteActive) revert VoteActive();
+        if (next == 2 && info.uniqueContributorCount < MIN_UNIQUE_CONTRIBUTORS) revert NeedMoreContributors();
         if (info.devBNB == 0 && info.totalRaised > 0) { uint256 lb = (info.totalRaised * info.liquidityBps) / 10000; info.liquidityBNB = lb; info.devBNB = info.totalRaised - lb; }
         uint256 amount = PresaleLib.calcMilestone(info.devBNB, releaseBps);
-        require(amount > 0, "Nothing");
-        require(tokenBnbBalance[tokenAddr] >= amount, "Low bal");
+        if (amount == 0) revert NothingToRelease();
+        if (tokenBnbBalance[tokenAddr] < amount) revert LowBalance();
         tokenBnbBalance[tokenAddr] -= amount;
         info.milestoneReleased = next;
         devLastActivity[info.dev] = block.timestamp;
         (bool sent,) = info.dev.call{value: amount}("");
-        require(sent, "Xfer failed");
+        if (!sent) revert TransferFailed();
         emit MilestoneReleased(tokenAddr, next, amount);
         emit DevActivityUpdated(info.dev, block.timestamp);
     }
@@ -270,27 +280,29 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     // ── Refunds ──
     function startRefundVote(address tokenAddr) external {
         TokenInfo storage info = tokens[tokenAddr];
-        require(info.active, "Token not active");
-        require(!info.refundVoteActive, "Vote active");
-        require(block.timestamp >= devLastActivity[info.dev] + 14 days, "Dev active");
-        require(info.totalRaised > 0, "No funds");
+        if (!info.active) revert TokenNotActive();
+        if (info.refundVoteActive) revert VoteActive();
+        if (block.timestamp < devLastActivity[info.dev] + 14 days) revert DevActiveRecently();
+        if (info.totalRaised == 0) revert NoFunds();
         info.refundVoteActive = true;
         RefundVote storage v = refundVotes[tokenAddr];
         v.startTime = block.timestamp; v.yesVotes = 0; v.totalVotes = info.totalRaised; v.executed = false;
         emit RefundVoteStarted(tokenAddr);
     }
     function castRefundVote(address tokenAddr, bool voteYes) external {
-        TokenInfo storage info = tokens[tokenAddr]; require(info.refundVoteActive, "No vote");
+        TokenInfo storage info = tokens[tokenAddr]; if (!info.refundVoteActive) revert NoVote();
         RefundVote storage v = refundVotes[tokenAddr];
-        require(!v.hasVoted[msg.sender], "Already voted"); require(contributions[tokenAddr][msg.sender] > 0, "Not contributor"); require(!v.executed, "Executed");
+        if (v.hasVoted[msg.sender]) revert AlreadyVoted();
+        if (contributions[tokenAddr][msg.sender] == 0) revert NotContributor();
+        if (v.executed) revert Executed();
         v.hasVoted[msg.sender] = true; if (voteYes) v.yesVotes += contributions[tokenAddr][msg.sender];
         emit RefundVoteCast(tokenAddr, msg.sender, voteYes ? contributions[tokenAddr][msg.sender] : 0);
         if (v.yesVotes > (v.totalVotes * 51) / 100) _executeRefund(tokenAddr);
     }
     function executeRefund(address tokenAddr) external {
-        TokenInfo storage info = tokens[tokenAddr]; require(info.refundVoteActive, "No vote");
-        RefundVote storage v = refundVotes[tokenAddr]; require(!v.executed, "Executed");
-        require(v.yesVotes > (v.totalVotes * 51) / 100, "Need 51%");
+        TokenInfo storage info = tokens[tokenAddr]; if (!info.refundVoteActive) revert NoVote();
+        RefundVote storage v = refundVotes[tokenAddr]; if (v.executed) revert Executed();
+        if (v.yesVotes <= (v.totalVotes * 51) / 100) revert Need51Percent();
         _executeRefund(tokenAddr);
     }
     function _executeRefund(address tokenAddr) internal {
@@ -303,23 +315,26 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     }
     function claimRefund(address tokenAddr) external nonReentrant {
         TokenInfo storage info = tokens[tokenAddr];
-        require(!info.active, "Active"); require(refundVotes[tokenAddr].executed, "Not executed");
-        uint256 c = contributions[tokenAddr][msg.sender]; require(c > 0, "No contrib");
+        if (info.active) revert NotActiveOrRefunded();
+        if (!refundVotes[tokenAddr].executed) revert NotExecuted();
+        uint256 c = contributions[tokenAddr][msg.sender]; if (c == 0) revert NoContributionToRefund();
         contributions[tokenAddr][msg.sender] = 0;
         uint256 releasedBps; if (info.milestoneReleased >= 1) releasedBps += 3300; if (info.milestoneReleased >= 2) releasedBps += 3300; if (info.milestoneReleased >= 3) releasedBps += 3400;
         uint256 refundAmount = PresaleLib.computeRefund(c, info.totalRaised, releasedBps);
-        require(refundAmount > 0, "Nothing"); require(tokenBnbBalance[tokenAddr] >= refundAmount, "Low bal");
+        if (refundAmount == 0) revert NothingToRelease();
+        if (tokenBnbBalance[tokenAddr] < refundAmount) revert LowBalanceForRefund();
         tokenBnbBalance[tokenAddr] -= refundAmount;
-        (bool sent,) = msg.sender.call{value: refundAmount}(""); require(sent, "Refund failed");
+        (bool sent,) = msg.sender.call{value: refundAmount}(""); if (!sent) revert TransferFailed();
     }
 
     // ── Dev Stake ──
     function claimDevStake(address tokenAddr) external nonReentrant {
         TokenInfo storage info = tokens[tokenAddr];
-        require(info.dev == msg.sender, "Not dev"); require(info.active, "Not active");
-        require(info.milestoneReleased == 3, "Not complete");
-        uint256 s = devStakes[tokenAddr]; require(s > 0, "No stake");
-        devStakes[tokenAddr] = 0; (bool sent,) = msg.sender.call{value: s}(""); require(sent);
+        if (info.dev != msg.sender) revert NotDev();
+        if (!info.active) revert NotActive();
+        if (info.milestoneReleased != 3) revert NotComplete();
+        uint256 s = devStakes[tokenAddr]; if (s == 0) revert NoStake();
+        devStakes[tokenAddr] = 0; (bool sent,) = msg.sender.call{value: s}(""); if (!sent) revert TransferFailed();
         emit DevStakeClaimed(msg.sender, s);
     }
     function updateDevActivity() external { devLastActivity[msg.sender] = block.timestamp; emit DevActivityUpdated(msg.sender, block.timestamp); }
@@ -355,9 +370,10 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
 
     // ── Sybil Reporting ──
     function reportSuspiciousWallet(address tokenAddr, address suspiciousWallet, string calldata reason) external {
-        TokenInfo storage info = tokens[tokenAddr]; require(info.active, "Not active");
-        require(suspiciousWallet != address(0)); require(suspiciousWallet != msg.sender);
-        require(!hasReported[tokenAddr][msg.sender][suspiciousWallet], "Reported");
+        TokenInfo storage info = tokens[tokenAddr]; if (!info.active) revert NotActive();
+        if (suspiciousWallet == address(0)) revert ZeroAddress();
+        if (suspiciousWallet == msg.sender) revert ZeroAddress();
+        if (hasReported[tokenAddr][msg.sender][suspiciousWallet]) revert AlreadyVoted();
         hasReported[tokenAddr][msg.sender][suspiciousWallet] = true;
         suspiciousReportCount[tokenAddr][suspiciousWallet]++;
         emit WalletReported(tokenAddr, msg.sender, suspiciousWallet, reason);
@@ -388,13 +404,17 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         TokenInfo storage info = tokens[tokenAddr];
         return (info.totalRaised, tokenBnbBalance[tokenAddr], info.totalRaised - tokenBnbBalance[tokenAddr]);
     }
+    function getContribution(address tokenAddr, address user) external view returns (uint256) { return contributions[tokenAddr][user]; }
+    function isRefundVoteActive(address tokenAddr) external view returns (bool) { return tokens[tokenAddr].refundVoteActive; }
+    function getContributorCount(address tokenAddr) external view returns (uint256) { return tokens[tokenAddr].uniqueContributorCount; }
     function getLPStatus(address tokenAddr) external view returns (bool added, address pair, uint256 lockedAmount, uint256 unlockTime, bool claimable) {
         return (liquidityAdded[tokenAddr], tokenLPPair[tokenAddr], lpLockedAmount[tokenAddr], lpUnlockTime[tokenAddr], liquidityAdded[tokenAddr] && block.timestamp >= lpUnlockTime[tokenAddr] && lpLockedAmount[tokenAddr] > 0);
     }
     function checkLaunchSuccess(address tokenAddr) external {
         TokenInfo storage info = tokens[tokenAddr];
-        require(block.timestamp >= info.launchTime + 90 days, "Not 90d");
-        require(info.active, "Refunded"); info.active = false;
+        if (block.timestamp < info.launchTime + 90 days) revert Not90Days();
+        if (!info.active) revert Refunded();
+        info.active = false;
         devSuccessfulLaunches[info.dev]++;
         emit DevReputationUpdated(info.dev, devLaunchHistory[info.dev].length, devSuccessfulLaunches[info.dev], devRefundedLaunches[info.dev]);
     }

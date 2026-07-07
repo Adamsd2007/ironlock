@@ -4,4 +4,6 @@
 export * as ironLockFactorySol from "./IronLockFactory.sol";
 export * as metadataRegistrySol from "./MetadataRegistry.sol";
 export * as mocks from "./mocks";
+export { AntiSybilLib__factory } from "./AntiSybilLib__factory";
 export { IronLockToken__factory } from "./IronLockToken__factory";
+export { PresaleLib__factory } from "./PresaleLib__factory";

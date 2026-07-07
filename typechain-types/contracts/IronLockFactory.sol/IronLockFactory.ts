@@ -60,6 +60,8 @@ export interface IronLockFactoryInterface extends Interface {
       | "devSuccessfulLaunches"
       | "executeRefund"
       | "getAllTokens"
+      | "getContribution"
+      | "getContributorCount"
       | "getDevLaunchHistory"
       | "getDevStats"
       | "getLPStatus"
@@ -72,6 +74,7 @@ export interface IronLockFactoryInterface extends Interface {
       | "isBlacklisted"
       | "isBlockedContributor"
       | "isIronLockToken"
+      | "isRefundVoteActive"
       | "isRefundVotePassed"
       | "launchFee"
       | "launchToken"
@@ -266,6 +269,14 @@ export interface IronLockFactoryInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getContribution",
+    values: [AddressLike, AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getContributorCount",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getDevLaunchHistory",
     values: [AddressLike]
   ): string;
@@ -311,6 +322,10 @@ export interface IronLockFactoryInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "isIronLockToken",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isRefundVoteActive",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -555,6 +570,14 @@ export interface IronLockFactoryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getContribution",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getContributorCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getDevLaunchHistory",
     data: BytesLike
   ): Result;
@@ -600,6 +623,10 @@ export interface IronLockFactoryInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "isIronLockToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isRefundVoteActive",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1238,6 +1265,18 @@ export interface IronLockFactory extends BaseContract {
 
   getAllTokens: TypedContractMethod<[], [string[]], "view">;
 
+  getContribution: TypedContractMethod<
+    [tokenAddr: AddressLike, user: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  getContributorCount: TypedContractMethod<
+    [tokenAddr: AddressLike],
+    [bigint],
+    "view"
+  >;
+
   getDevLaunchHistory: TypedContractMethod<
     [d: AddressLike],
     [string[]],
@@ -1317,6 +1356,12 @@ export interface IronLockFactory extends BaseContract {
   >;
 
   isIronLockToken: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+
+  isRefundVoteActive: TypedContractMethod<
+    [tokenAddr: AddressLike],
+    [boolean],
+    "view"
+  >;
 
   isRefundVotePassed: TypedContractMethod<
     [tokenAddr: AddressLike],
@@ -1630,6 +1675,16 @@ export interface IronLockFactory extends BaseContract {
     nameOrSignature: "getAllTokens"
   ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
+    nameOrSignature: "getContribution"
+  ): TypedContractMethod<
+    [tokenAddr: AddressLike, user: AddressLike],
+    [bigint],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getContributorCount"
+  ): TypedContractMethod<[tokenAddr: AddressLike], [bigint], "view">;
+  getFunction(
     nameOrSignature: "getDevLaunchHistory"
   ): TypedContractMethod<[d: AddressLike], [string[]], "view">;
   getFunction(
@@ -1713,6 +1768,9 @@ export interface IronLockFactory extends BaseContract {
   getFunction(
     nameOrSignature: "isIronLockToken"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "isRefundVoteActive"
+  ): TypedContractMethod<[tokenAddr: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "isRefundVotePassed"
   ): TypedContractMethod<[tokenAddr: AddressLike], [boolean], "view">;

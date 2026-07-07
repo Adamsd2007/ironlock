@@ -19,7 +19,7 @@ import {
   AlertTriangle, CheckCircle, ExternalLink, Coins, Vote,
   Timer, Copy, ShoppingCart, Check,
 } from "lucide-react";
-import { useTokenInfo, useContribution, useAntiSnipeStatus } from "@/hooks/useIronLock";
+import { useTokenInfo, useContribution, useAntiSnipeStatus, useIsRefundVoteActive } from "@/hooks/useIronLock";
 import { FACTORY_ABI, FACTORY_ADDRESS } from "@/lib/contracts";
 import { TrustBadge } from "@/components/TrustBadge";
 import { contributeToToken, castRefundVote, claimRefund, startRefundVote } from "@/lib/launch";
@@ -350,6 +350,7 @@ export default function TokenPage() {
   const { info, isLoading } = useTokenInfo(tokenAddress);
   const { data: contribution } = useContribution(tokenAddress, userAddress);
   const { data: antiSnipeEnd } = useAntiSnipeStatus(tokenAddress);
+  const { data: refundVoteActive } = useIsRefundVoteActive(tokenAddress);
 
   const { data: devActivityRaw } = useReadContract({
     address: FACTORY_ADDRESS,
@@ -632,7 +633,7 @@ export default function TokenPage() {
           )}
 
           {/* Refund Vote */}
-          {info.refundVoteActive && (
+          {refundVoteActive && (
             <div className="card border-yellow-400/20">
               <h2 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                 <Vote className="w-5 h-5 text-yellow-400" /> Refund Vote Active

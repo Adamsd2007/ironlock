@@ -66,6 +66,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Strings__factory>;
     getContractFactory(
+      name: "AntiSybilLib",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.AntiSybilLib__factory>;
+    getContractFactory(
       name: "IPancakeFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IPancakeFactory__factory>;
@@ -101,6 +105,10 @@ declare module "hardhat/types/runtime" {
       name: "MockPancakeRouter",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockPancakeRouter__factory>;
+    getContractFactory(
+      name: "PresaleLib",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.PresaleLib__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -168,6 +176,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Strings>;
     getContractAt(
+      name: "AntiSybilLib",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.AntiSybilLib>;
+    getContractAt(
       name: "IPancakeFactory",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -212,6 +225,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.MockPancakeRouter>;
+    getContractAt(
+      name: "PresaleLib",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.PresaleLib>;
 
     deployContract(
       name: "Ownable",
@@ -266,6 +284,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
     deployContract(
+      name: "AntiSybilLib",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.AntiSybilLib>;
+    deployContract(
       name: "IPancakeFactory",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IPancakeFactory>;
@@ -301,6 +323,10 @@ declare module "hardhat/types/runtime" {
       name: "MockPancakeRouter",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockPancakeRouter>;
+    deployContract(
+      name: "PresaleLib",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.PresaleLib>;
 
     deployContract(
       name: "Ownable",
@@ -368,6 +394,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
     deployContract(
+      name: "AntiSybilLib",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.AntiSybilLib>;
+    deployContract(
       name: "IPancakeFactory",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -412,6 +443,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockPancakeRouter>;
+    deployContract(
+      name: "PresaleLib",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.PresaleLib>;
 
     // default types
     getContractFactory(
