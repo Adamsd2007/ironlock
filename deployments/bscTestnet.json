@@ -1,7 +1,7 @@
 {
   "network": "bscTestnet",
   "chainId": 97,
-  "factoryAddress": "0x314254d44A417a15AE3E1a625190ae03A2C0F86D",
-  "deployer": "0xf6aA3B3FDBC45eFfb753E94777824F8713B2D1e9",
-  "deployedAt": "2026-07-07T13:40:00.255Z"
+  "factoryAddress": "0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb",
+  "deployer": "0xe9280a65b2970E26A1617bFFE580Eb9203f229fc",
+  "deployedAt": "2026-07-08T13:07:38.946Z"
 }
