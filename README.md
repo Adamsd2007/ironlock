@@ -1,110 +1,114 @@
-# 🛡️ IronLock — Rugpull-Proof Memecoin Launchpad
+# IronLock — Rugpull-Proof Memecoin Launchpad
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Tests](https://img.shields.io/badge/Tests-88%20Passing-brightgreen)](https://github.com/Adamsd2007/ironlock)
-[![Solidity](https://img.shields.io/badge/Solidity-0.8.28-363636)](https://soliditylang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-14.2.35-black)](https://nextjs.org/)
-[![BNB Chain](https://img.shields.io/badge/BNB%20Chain-Testnet-F0B90B)](https://www.bnbchain.org/)
+![License](https://img.shields.io/badge/License-MIT-blue.svg)
+![Tests](https://img.shields.io/badge/Tests-51%2F51%20Passing-brightgreen)
+![Solidity](https://img.shields.io/badge/Solidity-0.8.28-363636)
+![Next.js](https://img.shields.io/badge/Next.js-14.2-black)
+![BNB Chain](https://img.shields.io/badge/BNB%20Chain-Testnet-F0B90B)
 
-> **IronLock is the first memecoin launchpad where rugpulls are technically impossible.**
+**IronLock is a memecoin launchpad where rugpulls are technically impossible — safety features are hardcoded into the smart contract itself, not admin-controlled toggles.**
 
 ---
 
 ## 🔗 Quick Links
 
 | | |
-| **Website** | https://ironlock.xyz |
-| **Launch App** | https://ironlock.xyz/launch |
-| **Explore Tokens** | https://ironlock.xyz/explore |
-| **GitHub** | https://github.com/Adamsd2007/ironlock |
-| **Twitter** | https://x.com/IronLockxyz |
-| **Telegram** | https://t.me/ironlock |
+|---|---|
+| Website | https://ironlock.xyz |
+| Launch App | https://ironlock.xyz/launch |
+| Explore Tokens | https://ironlock.xyz/explore |
+| GitHub | https://github.com/Adamsd2007/ironlock |
+| Twitter | https://x.com/IronLockxyz |
+| Telegram | https://t.me/ironlock |
 
+---
 
 ## 📖 Table of Contents
 
 - [Overview](#-overview)
 - [Why IronLock?](#-why-ironlock)
 - [Features](#-features)
-- [Architecture](#-architecture)
+- [Architecture](#️-architecture)
 - [Smart Contracts](#-smart-contracts)
 - [Frontend](#-frontend)
 - [Security](#-security)
 - [Testing](#-testing)
 - [Deployment](#-deployment)
-- [Tech Stack](#-tech-stack)
+- [Tech Stack](#️-tech-stack)
 - [Installation](#-installation)
 - [Grant Application](#-grant-application)
-- [Roadmap](#-roadmap)
+- [Roadmap](#️-roadmap)
 - [License](#-license)
 
 ---
 
 ## 🎯 Overview
 
-**IronLock** is a next-generation token launchpad built exclusively for the BNB Chain ecosystem. Unlike traditional launchpads where safety features are optional or can be disabled by admins, IronLock **hardcodes all safety features into the smart contract itself** — making them immutable and trustless.
+IronLock is a token launchpad built exclusively for the BNB Chain ecosystem. Unlike traditional launchpads where safety features are optional or can be disabled by admins, IronLock hardcodes all safety features into the smart contract itself — making them immutable and trustless.
 
 Every token launched on IronLock inherits:
-- 🔒 **180+ day LP locks** (immutable)
-- ⏳ **90-day linear dev vesting** (enforced)
-- 🛡️ **Anti-snipe protection** (60 seconds, 0.5 BNB cap)
-- ⚡ **Milestone-based fund release** (33/33/34%)
-- 💰 **Community refund votes** (if dev goes inactive)
-- 👨‍💻 **Developer reputation system** (trust score)
 
-**Total lines of code:** 6,483 (frontend) + 693 (smart contracts) + 1,200 (tests)
+- 🔒 180+ day LP locks (immutable)
+- ⏳ 90-day linear dev vesting (enforced)
+- 🛡️ Anti-snipe protection (60 seconds, 0.5 BNB cap)
+- ⚡ Milestone-based fund release (33/33/34%)
+- 💰 Community refund votes (if dev goes inactive)
+- 👨‍💻 Developer reputation system (trust score)
 
 ---
 
 ## ❓ Why IronLock?
 
 ### The Problem
-Memecoins are the #1 source of rugpulls in crypto. In 2023 alone, over $2.8 billion was lost to memecoin scams. The problem isn't memecoins themselves — it's the lack of trustless safety mechanisms.
+
+Memecoins are one of the most common vectors for rugpulls in crypto. The core issue isn't memecoins themselves — it's the lack of trustless, enforced safety mechanisms at the contract level.
 
 ### The Solution
-IronLock makes rugpulls technically impossible by:
-1. **Hardcoding all safety features** — no admin can override
-2. **Making locks immutable** — LP tokens cannot be withdrawn early
-3. **Vesting dev tokens** — prevents instant dumps
-4. **Community refund votes** — buyers can reclaim funds if dev abandons
-5. **On-chain trust scores** — full transparency
+
+IronLock makes rugpulls harder to execute by:
+
+- Hardcoding safety features — no admin can override them
+- Making LP locks immutable — tokens cannot be withdrawn early
+- Vesting dev tokens linearly — prevents instant dumps
+- Enabling community refund votes — buyers can reclaim funds if a dev abandons the project
+- Publishing on-chain trust scores — full transparency per token
 
 ---
 
 ## 🚀 Features
 
 ### For Token Creators
+
 | Feature | Description |
-|---------|-------------|
-| 🔒 **LP Lock** | Liquidity locked for minimum 180 days (hardcoded) |
-| ⏳ **Dev Vesting** | Developer tokens release linearly over 90 days |
-| 🛡️ **Anti-Snipe** | First 60s: max 0.5 BNB per wallet |
-| ⚡ **Milestone Releases** | 33/33/34% at launch, 30d, 90d |
-| 🎯 **Softcap** | Minimum raise threshold (20-100%) |
-| 📊 **Trust Score** | 0-100 score based on safety features |
-| 💰 **Dev Stake** | 0.1 BNB stake (refundable after 90d) |
+|---|---|
+| 🔒 LP Lock | Liquidity locked for a minimum of 180 days (hardcoded) |
+| ⏳ Dev Vesting | Developer tokens release linearly over 90 days |
+| 🛡️ Anti-Snipe | First 60s: max 0.5 BNB per wallet |
+| ⚡ Milestone Releases | 33/33/34% released at launch, day 30, day 90 |
+| 🎯 Softcap | Minimum raise threshold (configurable, 20–100%) |
+| 📊 Trust Score | 0–100 score based on safety parameters chosen |
+| 💰 Dev Stake | 0.1 BNB stake, refundable after full lifecycle completion |
 
 ### For Buyers/Investors
+
 | Feature | Description |
-|---------|-------------|
-| 🛡️ **Buyer Protection** | Pro-rata refunds if dev abandons |
-| 💰 **Refund Votes** | Community can vote to refund remaining funds |
-| 📊 **Transparency** | All funds tracked on-chain |
-| 👨‍💻 **Dev Reputation** | See developer history before investing |
-| 🔍 **Security Check** | External wallet security audit |
-| 📈 **Trust Score** | Clear safety rating for each token |
+|---|---|
+| 🛡️ Buyer Protection | Pro-rata refunds if a dev goes inactive |
+| 💰 Refund Votes | Community can vote to refund remaining funds |
+| 📊 Transparency | All funds tracked on-chain, verifiable independently |
+| 👨‍💻 Dev Reputation | View a developer's launch/refund history before investing |
+| 📈 Trust Score | Clear, contract-derived safety rating per token |
 
 ---
 
 ## 🏗️ Architecture
 
-### System Diagram
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                          Users                               │
 │           (Token Creators & Buyers)                         │
 └─────────────────────┬───────────────────────────────────────┘
-                      │
+                       │
 ┌─────────────────────▼───────────────────────────────────────┐
 │                    Frontend (Next.js)                       │
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │
@@ -112,14 +116,14 @@ IronLock makes rugpulls technically impossible by:
 │  │ Wizard  │ │ Page    │ │ Page    │ │ Wallet  │          │
 │  └─────────┘ └─────────┘ └─────────┘ └─────────┘          │
 └─────────────────────┬───────────────────────────────────────┘
-                      │
+                       │
 ┌─────────────────────▼───────────────────────────────────────┐
 │                    API Layer (Next.js)                      │
 │  ┌─────────────────┐ ┌─────────────────┐                   │
 │  │ Eligibility API │ │ Reputation API  │                   │
 │  └─────────────────┘ └─────────────────┘                   │
 └─────────────────────┬───────────────────────────────────────┘
-                      │
+                       │
 ┌─────────────────────▼───────────────────────────────────────┐
 │              Smart Contracts (Solidity)                     │
 │  ┌─────────────────────────────────────────────────────┐    │
@@ -134,8 +138,11 @@ IronLock makes rugpulls technically impossible by:
 │  │           MetadataRegistry.sol                      │    │
 │  │  (Stores token metadata)                           │    │
 │  └─────────────────────────────────────────────────────┘    │
+│  ┌───────────────────┐  ┌───────────────────┐               │
+│  │  PresaleLib.sol   │  │  AntiSybilLib.sol │               │
+│  └───────────────────┘  └───────────────────┘               │
 └─────────────────────┬───────────────────────────────────────┘
-                      │
+                       │
 ┌─────────────────────▼───────────────────────────────────────┐
 │                   BNB Chain (BSC)                           │
 │              Testnet: Chain ID 97                          │
@@ -146,170 +153,176 @@ IronLock makes rugpulls technically impossible by:
 
 ## 📝 Smart Contracts
 
-### IronLockFactory.sol (401 lines)
-**The main contract that manages all token launches.**
+### `IronLockFactory.sol`
 
-Key functions:
+The main contract that manages all token launches, contributions, milestones, and refund logic.
+
+**Key functions:**
+
 ```solidity
 function launchToken(...) external payable returns (address)
 function contribute(address token) external payable
 function releaseMilestone(address token) external
-function voteRefund(address token, bool vote) external
+function startRefundVote(address token) external
+function castRefundVote(address token, bool voteYes) external
 function claimRefund(address token) external
+function claimDevStake(address token) external
+function checkLaunchSuccess(address token) external
 function addLiquidityToPancakeSwap(address token) external
 function claimLPTokens(address token) external
 ```
 
-**Storage:**
+**Read-only getters used by the frontend:**
+
 ```solidity
-struct TokenInfo {
-    string name;
-    string symbol;
-    uint256 totalSupply;
-    uint256 raiseCap;
-    uint256 lpLockDays;        // 180 days (hardcoded)
-    uint256 vestingDays;       // 90 days (hardcoded)
-    uint256 devAllocationBps;  // 500bps (5%)
-    uint256 launchTime;
-    uint256 totalRaised;
-    uint256 milestoneReleased; // 0, 1, 2, 3
-    bool active;
-    address dev;
-    uint256 antiSnipeEnd;
-    uint256 softCap;
-    uint256 presaleEnd;
-    bool softCapHit;
-    bool autoRefunded;
-}
+function getContribution(address token, address user) external view returns (uint256)
+function isRefundVoteActive(address token) external view returns (bool)
+function getContributorCount(address token) external view returns (uint256)
+function getDevStats(address dev) external view returns (uint256, uint256, uint256)
+function treasury() external view returns (address)
 ```
 
-### IronLockToken.sol (180 lines)
-**ERC20 token with built-in safety features.**
+### `IronLockToken.sol`
 
-Key features:
+ERC20 token with built-in safety features.
+
 - ✅ Dev vesting (linear over 90 days)
 - ✅ Daily sell cap (2% of dev allocation)
 - ✅ Anti-snipe protection (60s window)
-- ✅ Only owner can mint (factory)
+- ✅ Only the Factory can mint
 - ✅ No admin override
 
-### MetadataRegistry.sol (61 lines)
-**Stores token metadata off-chain.**
+### `MetadataRegistry.sol`
 
-Features:
-- ✅ Store logo URL, description, social links
-- ✅ Only token creator can update
-- ✅ Viewable by anyone
+Stores token metadata off-chain-adjacent data on-chain.
+
+- ✅ Stores logo URL, description, social links
+- ✅ Only the token creator can update their own entry
+- ✅ Readable by anyone
+
+### `PresaleLib.sol` / `AntiSybilLib.sol`
+
+Shared library logic for presale duration/softcap validation, token amount calculation, milestone math, and anti-snipe / per-wallet contribution limit checks — kept separate from the Factory to reduce contract size and centralize reusable math.
 
 ---
 
 ## 💻 Frontend
 
-### Pages (6,483 lines)
 | Page | Description |
-|------|-------------|
-| **Home** | Hero, LiveStats, How It Works, Trust Stats |
-| **Launch** | 4-step wizard, eligibility, image upload, softcap UI |
-| **Explore** | Token grid, TrustBadge, LP badge, refund calculator, filters |
-| **Token** | LP panel, fund accounting, dev transparency, contribute, refund |
-| **Scan** | Wallet scanner, risk assessment |
-| **Dashboard** | My Launches, My Investments, stats |
-| **Dev Profile** | Developer reputation, launch history |
+|---|---|
+| Home | Hero, live stats, how-it-works, trust stats |
+| Launch | Multi-step wizard, eligibility check, image upload, softcap configuration |
+| Explore | Token grid, trust badge, LP status badge, refund calculator, filters |
+| Token | LP status panel, fund accounting, dev transparency, contribute, refund |
+| Scan | Wallet risk scanner (GoPlus + BscScan checks) |
+| Dashboard | My Launches, My Investments, personal stats |
+| Dev Profile | Developer reputation, launch history |
 
-### Components
-- ✅ TrustBadge (0-100 score)
-- ✅ LP Status Panel
-- ✅ Refund Calculator
-- ✅ Dev Transparency Panel
-- ✅ Fund Accounting Panel
-- ✅ Progress Indicators
+**Key components:** Trust Badge (0–100 score), LP Status Panel, Refund Calculator, Dev Transparency Panel, Fund Accounting Panel, Progress Indicators.
 
 ---
 
 ## 🔒 Security
 
 ### Access Control
+
 | Feature | Implementation |
-|---------|---------------|
-| **onlyOwner** | Factory owner can set fees, emergency pause |
-| **onlyCreator** | Only token creator can perform certain actions |
-| **dev-gated** | Certain functions only for developers |
+|---|---|
+| `onlyOwner` | Factory owner can set launch fee, treasury, verifier, and manage the blacklist |
+| Dev-gated actions | Milestone releases and stake claims are tied to `msg.sender == dev` |
+| Reentrancy guards | `nonReentrant` on all payable/state-changing functions |
+| Signature verification | OpenZeppelin ECDSA + deadline + replay protection for eligibility proofs |
+| Anti-Sybil | Dev is auto-blocked from contributing to their own presale; per-wallet contribution caps; 5-report threshold auto-blocks a wallet |
+| Anti-snipe | 60-second window after launch, 0.5 BNB max contribution per wallet during that window |
 
-### Protection Mechanisms
-| Protection | How It Works |
-|------------|--------------|
-| **Reentrancy** | `nonReentrant` on all payable functions |
-| **Sybil Attack** | Dev blocked, per-wallet cap, 10+ unique for M2 |
-| **Signature Verification** | OZ ECDSA + deadline + replay protection |
-| **Integer Safety** | Solidity 0.8.x overflow checks |
-| **Admin Backdoor** | Fixed (encumbrance-aware withdrawal) |
+### A vulnerability we found and fixed ourselves
 
-### Security Score
-```
-🔒 Access Control:    ✅ 100%
-🛡️ Reentrancy:         ✅ 100%
-🛡️ Sybil Protection:   ✅ 100%
-🔑 Signature Verify:   ✅ 100%
-📊 Integer Safety:     ✅ 100%
-🚫 Admin Backdoor:     ✅ 100%
-      ─────────────────────
-      Overall:          ✅ 100%
-```
+During our own edge-case testing, we discovered that `checkLaunchSuccess()` — a permissionless function callable by anyone — set `active = false` on a token, which silently blocked `claimDevStake()` (which required `active == true`). This meant a legitimate developer could have their 0.1 BNB stake **permanently locked** if anyone else called `checkLaunchSuccess()` before the dev claimed their stake — including a malicious actor front-running the dev deliberately.
+
+**Fix:** We replaced the `active`-dependent check in `claimDevStake()` with a direct guard against `refundVotes[tokenAddr].executed`, and added an explicit `milestoneReleased == 3` requirement to `checkLaunchSuccess()` itself, closing the ordering race at the source rather than patching around it. We then added a dedicated regression test simulating the exact race (a non-dev calling `checkLaunchSuccess()` first) to confirm the dev could still successfully claim their stake afterward.
+
+We're documenting this openly because catching and fixing a real fund-lock bug before mainnet — with a test proving the fix — is more meaningful evidence of security rigor than a report with no findings at all.
+
+### What hasn't happened yet (honest status)
+
+- **No external/third-party audit yet.** All testing to date is our own, via automated Hardhat simulation scripts. We plan to pursue an external audit (community contest or professional auditor) before mainnet deployment.
+- **Testnet only.** Nothing described here has been deployed to BSC mainnet.
 
 ---
 
 ## 🧪 Testing
 
-### Test Coverage
-```
-✅ Invariants:              6 tests  (10,713ms)
-✅ Fuzz Testing:            5 tests  (1,092ms)
-✅ Critical Features:      15+ tests (1,600ms)
-✅ Full Lifecycle:          6 tests  (3,500ms)
-✅ Multi-Token:             2 tests  (709ms)
-        ─────────────────────────────────────
-        Total:             88 passing (53s)
+We test via two Hardhat scripts that simulate full on-chain lifecycles end-to-end, rather than isolated unit tests alone — this is designed to catch integration and ordering bugs, not just function-level logic errors.
+
+| Script | Steps | Coverage |
+|---|---|---|
+| `scripts/simulate.ts` | 24/24 ✅ | Happy path: deploy → launch → 3 contributions → `getContribution`/`getContributorCount` checks → milestone 1 release → refund vote (80% yes, auto-executes at 51%) → claim refund → post-refund state checks |
+| `scripts/simulate-edge-cases.ts` | 27/27 ✅ | Edge cases: LP add → 180-day lock → claim after unlock; refund vote at 10% yes (does **not** auto-execute); double-vote revert; non-contributor vote revert; anti-snipe cap enforcement (0.6 BNB rejected, 0.3 BNB accepted); 5-report Sybil auto-block; full 3-milestone release + `claimDevStake` + `checkLaunchSuccess`, including the race-condition regression test described above |
+
+**Total: 51/51 steps passing**, run against both a local Hardhat network and the live verified BSC testnet deployment.
+
+Run them yourself:
+
+```bash
+npm run hh:simulate
+npm run hh:simulate-edge
 ```
 
-### Test Categories
-| Category | Tests | Description |
-|----------|-------|-------------|
-| **Invariants** | 6 | Token supply, refund pool, milestones |
-| **Fuzz Testing** | 5 | Random inputs, edge cases |
-| **Critical #1** | 9 | Dev vesting enforcement |
-| **Critical #2** | 5 | Pro-rata refund mechanism |
-| **Critical #3** | 3 | Zero-token contributions |
-| **Medium #1** | 2 | Anti-snipe per token |
-| **Medium #2** | 5 | Signature encoding |
-| **Low #1** | 4 | Fee after validation |
-| **Info #1** | 2 | Permissionless milestones |
-| **Info #2** | 3 | Paginated token list |
-| **Blacklist** | 2 | Auto-trigger on refund |
-| **Regression** | 5 | Original functionality |
-| **Lifecycle** | 11 | Full user journey |
+Or against the live testnet contracts directly:
+
+```bash
+cross-env TS_NODE_PROJECT=tsconfig.hardhat.json hardhat run scripts/simulate.ts --network bscTestnet
+```
 
 ---
 
 ## 🚀 Deployment
 
 ### Testnet Deployment (BSC)
+
 ```
-Chain:         BSC Testnet
-Chain ID:      97
-Factory:       0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb
-Registry:      0x050dEbCD0751ea064d700874984B2afE06AEAa16
-PancakeSwap:   0xD99D1c33F9fC3444f8101754aBC46c52416550D1
+Chain:          BSC Testnet
+Chain ID:       97
+Factory:        0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb
+Registry:       0x050dEbCD0751ea064d700874984B2afE06AEAa16
+PancakeSwap:    0xD99D1c33F9fC3444f8101754aBC46c52416550D1 (testnet router)
 ```
 
+Both contracts are **verified** on BscScan Testnet:
 
+- [IronLockFactory — View on BscScan](https://testnet.bscscan.com/address/0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb#code)
+- [MetadataRegistry — View on BscScan](https://testnet.bscscan.com/address/0x050dEbCD0751ea064d700874984B2afE06AEAa16#code)
 
---
+> **Note:** The PancakeSwap router address above is the testnet router. Mainnet deployment will point to PancakeSwap's official mainnet router.
+
+### How to Reproduce This Deployment
+
+```bash
+npm install
+npm run hh:compile
+npm run hh:deploy
+npm run hh:verify -- <FACTORY_ADDRESS>
+npm run hh:verify -- <METADATA_REGISTRY_ADDRESS> <FACTORY_ADDRESS>
+```
+
+Requires a `.env` file with:
+
+```
+PRIVATE_KEY=your_deployer_private_key
+BSC_TESTNET_RPC=https://bsc-testnet-rpc.publicnode.com
+BSCSCAN_API_KEY=your_bscscan_api_key
+```
+
+**⚠️ Never commit `.env` or `.env.local` files. Only `.env.example` (with placeholder values) belongs in version control.**
+
+---
 
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 | Technology | Version | Purpose |
-|------------|---------|---------|
+|---|---|---|
 | Next.js | 14.2.35 | React framework |
 | TypeScript | 5.0+ | Type safety |
 | Tailwind CSS | 3.3+ | Styling |
@@ -319,25 +332,27 @@ PancakeSwap:   0xD99D1c33F9fC3444f8101754aBC46c52416550D1
 | React Hot Toast | 2.x | Notifications |
 
 ### Smart Contracts
+
 | Technology | Version | Purpose |
-|------------|---------|---------|
+|---|---|---|
 | Solidity | 0.8.28 | Smart contract language |
 | Hardhat | 2.x | Development framework |
-| OpenZeppelin | 4.x | Security standards |
+| OpenZeppelin | 4.x | Security-audited base contracts |
 | Ethers.js | 6.x | Ethereum interaction |
-| Chai | 4.x | Test assertions |
 
 ### API Routes
+
 | Route | Purpose |
-|-------|---------|
+|---|---|
 | `/api/check-eligibility` | Wallet eligibility check |
 | `/api/dev-reputation` | Developer reputation score |
-| `/api/wallet-security-check` | External security check |
+| `/api/wallet-security-check` | External wallet security check (GoPlus/BscScan) |
 
 ### Blockchain
+
 | Network | Purpose |
-|---------|---------|
-| BSC Testnet (97) | Development & testing |
+|---|---|
+| BSC Testnet (97) | Development & testing (current) |
 | BSC Mainnet (56) | Production (post-grant) |
 
 ---
@@ -345,12 +360,14 @@ PancakeSwap:   0xD99D1c33F9fC3444f8101754aBC46c52416550D1
 ## 📦 Installation
 
 ### Prerequisites
+
 - Node.js 18+
 - npm or yarn
 - Git
-- Metamask or similar wallet
+- MetaMask or similar wallet
 
 ### Setup
+
 ```bash
 # 1. Clone the repository
 git clone https://github.com/Adamsd2007/ironlock.git
@@ -361,7 +378,7 @@ npm install
 
 # 3. Set up environment variables
 cp .env.example .env.local
-# Edit .env.local with your values
+# Edit .env.local with your own values — never commit this file
 
 # 4. Run development server
 npm run dev
@@ -369,105 +386,86 @@ npm run dev
 # 5. Open http://localhost:3000
 ```
 
-### Environment Variables
-```env
-# Network Configuration
-NEXT_PUBLIC_CHAIN_ID=97
-NEXT_PUBLIC_BSC_RPC=https://data-seed-prebsc-1-s1.binance.org:8545
-
-
-# WalletConnect (for production)
-NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
-```
-
 ### Smart Contract Setup
+
 ```bash
 # Compile contracts
-npx hardhat compile
+npm run hh:compile
 
-# Run tests
-npx hardhat test
+# Run simulation test suites
+npm run hh:simulate
+npm run hh:simulate-edge
 
 # Deploy to testnet
-npx hardhat run deploy/deploy.ts --network bscTestnet
+npm run hh:deploy
+
+# Verify on BscScan
+npm run hh:verify -- <CONTRACT_ADDRESS>
 ```
 
 ---
 
 ## 🎯 Grant Application
 
-### Why IronLock Deserves a Grant
+### Why IronLock
 
-| Criteria | IronLock's Achievement |
-|----------|----------------------|
-| **Innovation** | First launchpad with hardcoded safety features |
-| **Technical Excellence** | 88 tests passing, 23 contracts, 6,483 lines of frontend |
-| **Security** | 100% security score, immutable safety features |
-| **Community Impact** | Protects memecoin investors from rugpulls |
-| **Ecosystem Growth** | Enables safe token launches on BNB Chain |
-| **Production Readiness** | Live on testnet, ready for mainnet |
-
-### Grant Programs We're Targeting
-
-| Program | Amount | Status |
-|---------|--------|--------|
-| **BNB Chain Builder Grant** | $50,000 | Applying |
-| **BNB Chain Grants** | $200,000 | Preparing |
-| **Gas Grants** | $50,000 | Planned |
-| **MVB Program** | $500,000 | Future |
+| Criteria | IronLock's Status |
+|---|---|
+| Innovation | Launchpad with hardcoded, non-overridable safety mechanisms rather than admin-toggled features |
+| Technical Rigor | 51/51 automated lifecycle + edge-case test steps; one real vulnerability found and fixed pre-launch, with a regression test proving the fix |
+| Security Posture | Self-tested and documented; no external audit yet — planned before mainnet |
+| Transparency | Verified contracts on BscScan, open-source repo, honest disclosure of what's tested vs. not yet audited |
+| Community Impact | Aims to reduce rugpull losses for memecoin investors on BNB Chain |
+| Production Readiness | Live and verified on BSC Testnet; mainnet planned post-grant and post-audit |
 
 ### Project Timeline
+
 ```
 Q3 2026 (Current)
 ├── ✅ Testnet deployment
-├── ✅ 88 tests passing
-├── ✅ Frontend complete
-├── ✅ Grant application
-└── ⬜ Mainnet launch (post-grant)
+├── ✅ Contract verification on BscScan
+├── ✅ 51/51 automated test steps passing
+├── ✅ Frontend end-to-end integration
+├── ✅ Vulnerability found & fixed pre-launch
+└── ⬜ Grant application submitted
 
 Q4 2026
-├── ⬜ Mainnet deployment
-├── ⬜ Marketing campaign
+├── ⬜ External security audit
+├── ⬜ Mainnet deployment (post-audit)
 ├── ⬜ Community growth
-└── ⬜ First token launches
+└── ⬜ First live token launches
 
 Q1 2027
-├── ⬜ Mobile app
-├── ⬜ Multi-chain support
-├── ⬜ Advanced analytics
-└── ⬜ DAO governance
+├── ⬜ Mobile-friendly UI improvements
+├── ⬜ Multi-chain exploration
+└── ⬜ DAO governance exploration
 ```
 
 ---
 
 ## 🗺️ Roadmap
 
-### Phase 1: Foundation (Complete ✅)
+### Phase 1: Foundation ✅
 - [x] Smart contract development
-- [x] 88 passing tests
-- [x] Frontend development (6,483 lines)
+- [x] Automated lifecycle + edge-case testing (51/51 steps)
+- [x] Frontend development
 - [x] Testnet deployment
-- [x] Contract verification on BSCScan
+- [x] Contract verification on BscScan
+- [x] Pre-launch vulnerability found and fixed
 
 ### Phase 2: Grant & Growth (In Progress 🚀)
-- [ ] Grant applications (BNB Chain, MVB)
+- [ ] Grant application (BNB Chain)
+- [ ] External security audit
 - [ ] Community building
-- [ ] Marketing campaign
-- [ ] Security audit
 - [ ] Mainnet deployment
 
 ### Phase 3: Scale & Expand
-- [ ] Mobile app
-- [ ] Multi-chain support (ETH, Polygon, Base)
+- [ ] Multi-chain exploration
 - [ ] Advanced analytics
 - [ ] DAO governance
-- [ ] Token launch scheduling
-- [ ] Automated market making
 
 ### Phase 4: Ecosystem
 - [ ] Partner integrations
-- [ ] Launchpad aggregator
-- [ ] Cross-chain bridging
 - [ ] Developer API
 - [ ] Custom launch templates
 
@@ -475,7 +473,7 @@ Q1 2027
 
 ## 📄 License
 
-**MIT License** — See [LICENSE](LICENSE) for details.
+MIT License — See [LICENSE](LICENSE) for details.
 
 ```
 Copyright (c) 2026 Adamsd2007 / IronLock
@@ -503,70 +501,14 @@ SOFTWARE.
 
 ## 🙏 Acknowledgments
 
-- **OpenZeppelin** — Smart contract standards
-- **Hardhat** — Development framework
-- **Wagmi & RainbowKit** — Wallet integration
-- **BNB Chain** — Blockchain infrastructure
-- **PancakeSwap** — DEX integration
-
-
-
-
-
-## ⭐ Star Us!
-
-If you find IronLock useful, please ⭐ this repository!
-
-```
-███████╗██╗██████╗ ██████╗ ███╗   ██╗██╗      ██████╗  ██████╗██╗  ██╗
-██╔════╝██║██╔══██╗██╔══██╗████╗  ██║██║     ██╔═══██╗██╔════╝██║ ██╔╝
-███████╗██║██████╔╝██║  ██║██╔██╗ ██║██║     ██║   ██║██║     █████╔╝ 
-╚════██║██║██╔══██╗██║  ██║██║╚██╗██║██║     ██║   ██║██║     ██╔═██╗ 
-███████║██║██║  ██║██████╔╝██║ ╚████║███████╗╚██████╔╝╚██████╗██║  ██╗
-╚══════╝╚═╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
-```
-
-**IronLock — Where Rugpulls Go to Die** 🛡️
+- [OpenZeppelin](https://openzeppelin.com/) — Smart contract standards
+- [Hardhat](https://hardhat.org/) — Development framework
+- [Wagmi](https://wagmi.sh/) & [RainbowKit](https://www.rainbowkit.com/) — Wallet integration
+- [BNB Chain](https://www.bnbchain.org/) — Blockchain infrastructure
+- [PancakeSwap](https://pancakeswap.finance/) — DEX integration
 
 ---
-## Deployed Contracts (BSC Testnet)
 
-- **IronLockFactory**: `0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb`
-  [View on BscScan](https://testnet.bscscan.com/address/0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb#code)
-- **MetadataRegistry**: `0x050dEbCD0751ea064d700874984B2afE06AEAa16`
-  [View on BscScan](https://testnet.bscscan.com/address/0x050dEbCD0751ea064d700874984B2afE06AEAa16#code)
+**IronLock — Where Rugpulls Go to Die 🛡️**
 
-Both contracts are verified on BscScan Testnet.
-
-## Testing
-Factory: 0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb ✅ verified
-MetadataRegistry: 0x050dEbCD0751ea064d700874984B2afE06AEAa16 ✅ verified
-- 51/51 automated test steps passed across two test suites (happy path + edge cases)
-- 1 vulnerability discovered and fixed pre-launch (dev stake fund-lock race condition — see commit history)
-- Full lifecycle tested: token launch, contributions, milestone releases, refund voting, LP locking, anti-sybil protections, dev reputation tracking
-
-
-## How to Reproduce This Deployment
-
-Clone the repo, install dependencies, then:
-
-\`\`\`bash
-npm install
-npm run hh:compile
-npm run hh:deploy
-npm run hh:verify -- <FACTORY_ADDRESS>
-npm run hh:verify -- <METADATA_REGISTRY_ADDRESS> <FACTORY_ADDRESS>
-\`\`\`
-
-Requires a `.env` file with:
-\`\`\`
-PRIVATE_KEY=your_deployer_private_key
-BSC_TESTNET_RPC=https://bsc-testnet-rpc.publicnode.com
-BSCSCAN_API_KEY=your_bscscan_api_key
-\`\`\`
-
-
-Email contact:
-a.sedqy2007@gmail.com
-
-
+Contact: [Twitter](https://x.com/IronLockxyz) · [Telegram](https://t.me/ironlock)
