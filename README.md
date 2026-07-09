@@ -19,8 +19,6 @@
 | **GitHub** | https://github.com/Adamsd2007/ironlock |
 | **Twitter** | https://x.com/IronLockxyz |
 | **Telegram** | https://t.me/ironlock |
-| **BSCScan Factory** | [View Contract](https://testnet.bscscan.com/address/0x3107378fB8D7108081c1e70CFd64B23435551193) |
-| **BSCScan Registry** | [View Contract](https://testnet.bscscan.com/address/0x6B9e00122F0c0D5b62B72566EfBC3f0363A6b48D) |
 
 
 ## 📖 Table of Contents
@@ -298,29 +296,14 @@ Features:
 ```
 Chain:         BSC Testnet
 Chain ID:      97
-Factory:       0x3107378fB8D7108081c1e70CFd64B23435551193
-Registry:      0x6B9e00122F0c0D5b62B72566EfBC3f0363A6b48D
+Factory:       0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb
+Registry:      0x050dEbCD0751ea064d700874984B2afE06AEAa16
 PancakeSwap:   0xD99D1c33F9fC3444f8101754aBC46c52416550D1
 ```
 
-### Deployment Commands
-```bash
-# Deploy contracts
-npx hardhat run deploy/deploy.ts --network bscTestnet
 
-# Verify contracts
-npx hardhat verify --network bscTestnet 0x3107378fB8D7108081c1e70CFd64B23435551193
-npx hardhat verify --network bscTestnet 0x6B9e00122F0c0D5b62B72566EfBC3f0363A6b48D 0x3107378fB8D7108081c1e70CFd64B23435551193
 
-# Run tests
-npx hardhat test
-```
-
-### BSCScan Verification
-- **Factory:** https://testnet.bscscan.com/address/0x3107378fB8D7108081c1e70CFd64B23435551193#code
-- **Registry:** https://testnet.bscscan.com/address/0x6B9e00122F0c0D5b62B72566EfBC3f0363A6b48D#code
-
----
+--
 
 ## 🛠️ Tech Stack
 
@@ -392,9 +375,6 @@ npm run dev
 NEXT_PUBLIC_CHAIN_ID=97
 NEXT_PUBLIC_BSC_RPC=https://data-seed-prebsc-1-s1.binance.org:8545
 
-# Contract Addresses
-NEXT_PUBLIC_FACTORY_ADDRESS=0x3107378fB8D7108081c1e70CFd64B23435551193
-NEXT_PUBLIC_METADATA_REGISTRY_ADDRESS=0x6B9e00122F0c0D5b62B72566EfBC3f0363A6b48D
 
 # WalletConnect (for production)
 NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=your_project_id_here
@@ -549,6 +529,42 @@ If you find IronLock useful, please ⭐ this repository!
 **IronLock — Where Rugpulls Go to Die** 🛡️
 
 ---
+## Deployed Contracts (BSC Testnet)
+
+- **IronLockFactory**: `0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb`
+  [View on BscScan](https://testnet.bscscan.com/address/0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb#code)
+- **MetadataRegistry**: `0x050dEbCD0751ea064d700874984B2afE06AEAa16`
+  [View on BscScan](https://testnet.bscscan.com/address/0x050dEbCD0751ea064d700874984B2afE06AEAa16#code)
+
+Both contracts are verified on BscScan Testnet.
+
+## Testing
+Factory: 0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb ✅ verified
+MetadataRegistry: 0x050dEbCD0751ea064d700874984B2afE06AEAa16 ✅ verified
+- 51/51 automated test steps passed across two test suites (happy path + edge cases)
+- 1 vulnerability discovered and fixed pre-launch (dev stake fund-lock race condition — see commit history)
+- Full lifecycle tested: token launch, contributions, milestone releases, refund voting, LP locking, anti-sybil protections, dev reputation tracking
+
+
+## How to Reproduce This Deployment
+
+Clone the repo, install dependencies, then:
+
+\`\`\`bash
+npm install
+npm run hh:compile
+npm run hh:deploy
+npm run hh:verify -- <FACTORY_ADDRESS>
+npm run hh:verify -- <METADATA_REGISTRY_ADDRESS> <FACTORY_ADDRESS>
+\`\`\`
+
+Requires a `.env` file with:
+\`\`\`
+PRIVATE_KEY=your_deployer_private_key
+BSC_TESTNET_RPC=https://bsc-testnet-rpc.publicnode.com
+BSCSCAN_API_KEY=your_bscscan_api_key
+\`\`\`
+
 
 Email contact:
 a.sedqy2007@gmail.com
