@@ -98,12 +98,8 @@ contract IronLockToken is ERC20, ERC20Burnable, Ownable {
         emit DevAllocationSet(dev_, amount, vestingStart_, vestingDuration_, dailySellCapBps_);
     }
 
-    /// @notice Mint tokens to the pair / contributors (called by factory).
-    function mint(address to, uint256 amount) external onlyOwner {
-        _mint(to, amount);
-    }
-
-    /// @notice Transfer tokens held by this contract to the pair (called by factory).
+    /// @notice Transfer tokens held by this contract to contributors / pair (called by factory).
+    /// @dev Replaces the removed mint() — all token allocation comes from the pre-minted supply.
     function factoryTransfer(address to, uint256 amount) external onlyOwner {
         _transfer(address(this), to, amount);
     }
@@ -140,10 +136,12 @@ contract IronLockToken is ERC20, ERC20Burnable, Ownable {
                 lastDailyReset = block.timestamp;
             }
 
-            // Check vested amount
+            // Check vested amount, net of prior transfers
             uint256 vested = _vestedAmount();
             uint256 devBalance = balanceOf(dev);
-            uint256 maxTransferable = vested < devBalance ? vested : devBalance;
+            uint256 previouslyTransferred = devAllocation > devBalance ? devAllocation - devBalance : 0;
+            uint256 transferableVested = vested > previouslyTransferred ? vested - previouslyTransferred : 0;
+            uint256 maxTransferable = transferableVested < devBalance ? transferableVested : devBalance;
 
             // Check daily cap
             uint256 dailyCap = (devAllocation * dailySellCapBps) / 10000;
