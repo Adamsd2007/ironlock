@@ -102,7 +102,7 @@ async function main() {
   }
   // Fallback: read from allTokens
   if (!tokenAddress) {
-    const all = await factory.getAllTokens();
+    const [all] = await factory.getTokensPaginated(0, 1000);
     tokenAddress = all[all.length - 1];
   }
   pass("Launch 'Safe Moon' token", `at ${tokenAddress}`);

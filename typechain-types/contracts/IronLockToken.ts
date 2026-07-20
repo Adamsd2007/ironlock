@@ -39,7 +39,6 @@ export interface IronLockTokenInterface extends Interface {
       | "devSoldToday"
       | "factoryTransfer"
       | "lastDailyReset"
-      | "mint"
       | "name"
       | "owner"
       | "renounceOwnership"
@@ -107,10 +106,6 @@ export interface IronLockTokenInterface extends Interface {
   encodeFunctionData(
     functionFragment: "lastDailyReset",
     values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "mint",
-    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -193,7 +188,6 @@ export interface IronLockTokenInterface extends Interface {
     functionFragment: "lastDailyReset",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "mint", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
@@ -435,12 +429,6 @@ export interface IronLockToken extends BaseContract {
 
   lastDailyReset: TypedContractMethod<[], [bigint], "view">;
 
-  mint: TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
   name: TypedContractMethod<[], [string], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
@@ -552,13 +540,6 @@ export interface IronLockToken extends BaseContract {
   getFunction(
     nameOrSignature: "lastDailyReset"
   ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "mint"
-  ): TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
   getFunction(
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;

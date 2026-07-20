@@ -147,13 +147,6 @@ export const FACTORY_ABI = [
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "getAllTokens",
-    "outputs": [{ "internalType": "address[]", "name": "", "type": "address[]" }],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       { "internalType": "uint256", "name": "offset", "type": "uint256" },
       { "internalType": "uint256", "name": "limit", "type": "uint256" }

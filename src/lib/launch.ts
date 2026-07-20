@@ -272,9 +272,11 @@ export async function fetchAllTokens(): Promise<string[]> {
     const tokens = await readContract(wagmiConfig, {
       address: FACTORY_ADDRESS,
       abi: FACTORY_ABI,
-      functionName: "getAllTokens",
+      functionName: "getTokensPaginated",
+      args: [0n, 1000n],
     });
-    return [...(tokens as string[])].reverse(); // newest first
+    const [results] = tokens as [string[], bigint];
+    return [...results].reverse(); // newest first
   } catch (err) {
     console.error("Fetch all tokens failed:", err);
     return [];

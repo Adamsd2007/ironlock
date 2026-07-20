@@ -59,10 +59,9 @@ export interface IronLockFactoryInterface extends Interface {
       | "devStakes"
       | "devSuccessfulLaunches"
       | "executeRefund"
-      | "getAllTokens"
       | "getContribution"
       | "getContributorCount"
-      | "getDevLaunchHistory"
+      | "getDevLaunchHistoryPaginated"
       | "getDevStats"
       | "getLPStatus"
       | "getSafetyScore"
@@ -100,7 +99,6 @@ export interface IronLockFactoryInterface extends Interface {
       | "transferOwnership"
       | "treasury"
       | "unblacklistWallet"
-      | "updateDevActivity"
       | "usedEligibilityProofs"
       | "verifier"
       | "withdrawStuckBNB"
@@ -265,10 +263,6 @@ export interface IronLockFactoryInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getAllTokens",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "getContribution",
     values: [AddressLike, AddressLike]
   ): string;
@@ -277,8 +271,8 @@ export interface IronLockFactoryInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getDevLaunchHistory",
-    values: [AddressLike]
+    functionFragment: "getDevLaunchHistoryPaginated",
+    values: [AddressLike, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getDevStats",
@@ -429,17 +423,13 @@ export interface IronLockFactoryInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "updateDevActivity",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "usedEligibilityProofs",
     values: [BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "verifier", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "withdrawStuckBNB",
-    values: [BigNumberish]
+    values: [BigNumberish, BigNumberish]
   ): string;
 
   decodeFunctionResult(
@@ -566,10 +556,6 @@ export interface IronLockFactoryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAllTokens",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "getContribution",
     data: BytesLike
   ): Result;
@@ -578,7 +564,7 @@ export interface IronLockFactoryInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getDevLaunchHistory",
+    functionFragment: "getDevLaunchHistoryPaginated",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -712,10 +698,6 @@ export interface IronLockFactoryInterface extends Interface {
   decodeFunctionResult(functionFragment: "treasury", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "unblacklistWallet",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "updateDevActivity",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -1263,8 +1245,6 @@ export interface IronLockFactory extends BaseContract {
     "nonpayable"
   >;
 
-  getAllTokens: TypedContractMethod<[], [string[]], "view">;
-
   getContribution: TypedContractMethod<
     [tokenAddr: AddressLike, user: AddressLike],
     [bigint],
@@ -1277,9 +1257,9 @@ export interface IronLockFactory extends BaseContract {
     "view"
   >;
 
-  getDevLaunchHistory: TypedContractMethod<
-    [d: AddressLike],
-    [string[]],
+  getDevLaunchHistoryPaginated: TypedContractMethod<
+    [d: AddressLike, offset: BigNumberish, limit: BigNumberish],
+    [[string[], bigint] & { result: string[]; total: bigint }],
     "view"
   >;
 
@@ -1536,8 +1516,6 @@ export interface IronLockFactory extends BaseContract {
     "nonpayable"
   >;
 
-  updateDevActivity: TypedContractMethod<[], [void], "nonpayable">;
-
   usedEligibilityProofs: TypedContractMethod<
     [arg0: BigNumberish, arg1: AddressLike],
     [boolean],
@@ -1547,7 +1525,7 @@ export interface IronLockFactory extends BaseContract {
   verifier: TypedContractMethod<[], [string], "view">;
 
   withdrawStuckBNB: TypedContractMethod<
-    [amount: BigNumberish],
+    [amount: BigNumberish, encumbered: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -1672,9 +1650,6 @@ export interface IronLockFactory extends BaseContract {
     nameOrSignature: "executeRefund"
   ): TypedContractMethod<[tokenAddr: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "getAllTokens"
-  ): TypedContractMethod<[], [string[]], "view">;
-  getFunction(
     nameOrSignature: "getContribution"
   ): TypedContractMethod<
     [tokenAddr: AddressLike, user: AddressLike],
@@ -1685,8 +1660,12 @@ export interface IronLockFactory extends BaseContract {
     nameOrSignature: "getContributorCount"
   ): TypedContractMethod<[tokenAddr: AddressLike], [bigint], "view">;
   getFunction(
-    nameOrSignature: "getDevLaunchHistory"
-  ): TypedContractMethod<[d: AddressLike], [string[]], "view">;
+    nameOrSignature: "getDevLaunchHistoryPaginated"
+  ): TypedContractMethod<
+    [d: AddressLike, offset: BigNumberish, limit: BigNumberish],
+    [[string[], bigint] & { result: string[]; total: bigint }],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "getDevStats"
   ): TypedContractMethod<
@@ -1946,9 +1925,6 @@ export interface IronLockFactory extends BaseContract {
     nameOrSignature: "unblacklistWallet"
   ): TypedContractMethod<[w: AddressLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "updateDevActivity"
-  ): TypedContractMethod<[], [void], "nonpayable">;
-  getFunction(
     nameOrSignature: "usedEligibilityProofs"
   ): TypedContractMethod<
     [arg0: BigNumberish, arg1: AddressLike],
@@ -1960,7 +1936,11 @@ export interface IronLockFactory extends BaseContract {
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "withdrawStuckBNB"
-  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  ): TypedContractMethod<
+    [amount: BigNumberish, encumbered: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   getEvent(
     key: "BlacklistAdded"

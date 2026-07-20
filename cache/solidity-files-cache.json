@@ -49,8 +49,8 @@
       ]
     },
     "C:\\Users\\zertyuiop\\Desktop\\bnbsafe\\contracts\\IronLockFactory.sol": {
-      "lastModificationDate": 1783434904552,
-      "contentHash": "a71e3e8be41fe2857b64ef7bdc7e591b",
+      "lastModificationDate": 1784545270554,
+      "contentHash": "b0d5caf0d4f069592aa5d40928bbd58b",
       "sourceName": "contracts/IronLockFactory.sol",
       "solcConfig": {
         "version": "0.8.25",
@@ -95,7 +95,6 @@
         "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol",
         "./IronLockToken.sol",
         "./PresaleLib.sol",
-        "./AntiSybilLib.sol",
         "./AntiSybilLib.sol"
       ],
       "versionPragmas": [
@@ -155,8 +154,8 @@
       ]
     },
     "C:\\Users\\zertyuiop\\Desktop\\bnbsafe\\contracts\\IronLockToken.sol": {
-      "lastModificationDate": 1782992782571,
-      "contentHash": "4a1ab7dbbf037caaf30d7934c5b57058",
+      "lastModificationDate": 1784545272689,
+      "contentHash": "bbe723928579f6736074f2a764de9b63",
       "sourceName": "contracts/IronLockToken.sol",
       "solcConfig": {
         "version": "0.8.25",

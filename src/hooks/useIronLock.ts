@@ -11,14 +11,16 @@ import { FACTORY_ABI, FACTORY_ADDRESS, TOKEN_ABI, type TokenInfo } from "@/lib/c
 
 // ── Use All Tokens ───────────────────────
 export function useAllTokens() {
-  const { data: addresses, isLoading } = useReadContract({
+  const { data, isLoading } = useReadContract({
     address: FACTORY_ADDRESS,
     abi: FACTORY_ABI,
-    functionName: "getAllTokens",
+    functionName: "getTokensPaginated",
+    args: [0n, 1000n], // offset=0, limit=1000 — paginated replacement for getAllTokens
   });
 
-  const tokenAddresses: string[] = addresses
-    ? [...(addresses as string[])].reverse()
+  // getTokensPaginated returns [address[], uint256]
+  const tokenAddresses: string[] = data
+    ? [...((data as any)[0] as string[])].reverse()
     : [];
 
   return { tokenAddresses, tokenCount: tokenAddresses.length, isLoading };

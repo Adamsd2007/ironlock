@@ -50,7 +50,7 @@ async function launchToken(
     { value }
   );
   const receipt = await tx.wait();
-  const all = await factory.getAllTokens();
+  const [all] = await factory.getTokensPaginated(0, 1000);
   return all[all.length - 1];
 }
 
@@ -237,12 +237,10 @@ async function main() {
   }
   pass("5 wallets reported Alice (threshold met)");
 
-  try {
-    await factory.connect(alice).contribute(tokenSybil, { value: ethers.parseEther("0.1") });
-    fail("Blocked contributor cannot contribute", "revert Blocked", "success");
-  } catch {
-    pass("Blocked contributor rejected", "Blocked");
-  }
+  // Auto-blocking removed — reports now emit events for manual owner review.
+  // Alice can still contribute after being reported (no automatic block).
+  await factory.connect(alice).contribute(tokenSybil, { value: ethers.parseEther("0.1") });
+  pass("Alice can still contribute after reports (auto-block removed)", "Owner reviews manually");
 
   await factory.connect(bob).contribute(tokenSybil, { value: ethers.parseEther("0.5") });
   pass("Unblocked wallet (Bob) can still contribute");
@@ -275,20 +273,18 @@ async function main() {
   pass("Milestone 3 released (90d, all complete)");
   info("Total: 90+ days since launch, 3 milestones released");
 
-  // BUGFIX TEST: Another user calls checkLaunchSuccess BEFORE dev claims stake.
-  // Previously this would permanently lock the dev's stake (active=false).
-  // After the fix, claimDevStake uses milestoneReleased + !executed, not active.
-  await factory.connect(alice).checkLaunchSuccess(tokenWin);
-  const [, successful] = await factory.getDevStats(dev.address);
-  info(`Alice called checkLaunchSuccess → dev successful count: ${successful}`);
-  pass("checkLaunchSuccess called by non-dev (simulates race)", "Token marked successful");
 
-  // Dev should still be able to claim stake AFTER checkLaunchSuccess
+  // Dev must claim stake FIRST (checkLaunchSuccess requires devStakes==0).
   const balBefore = await ethers.provider.getBalance(dev.address);
   await factory.connect(dev).claimDevStake(tokenWin);
   const balAfter = await ethers.provider.getBalance(dev.address);
-  if (balAfter > balBefore) pass("Dev stake claimed AFTER checkLaunchSuccess", `✅ Bug fixed! ${ethers.formatEther(balAfter - balBefore)} BNB`);
-  else fail("Dev stake blocked by checkLaunchSuccess", "> 0 BNB", "0 BNB");
+  if (balAfter > balBefore) pass("Dev stake claimed (before checkLaunchSuccess)", `${ethers.formatEther(balAfter - balBefore)} BNB`);
+  else fail("Dev stake not received", "> 0 BNB", "0 BNB");
+
+  await factory.connect(alice).checkLaunchSuccess(tokenWin);
+  const [, successful] = await factory.getDevStats(dev.address);
+  info(`checkLaunchSuccess called -> dev successful count: ${successful}`);
+  pass("checkLaunchSuccess passed (stake already claimed)", "Token marked successful");
 
   // ── Summary ──
   console.log(`\n══════════════════════════════════════════════`);
