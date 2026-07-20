@@ -290,8 +290,8 @@ PancakeSwap:    0xD99D1c33F9fC3444f8101754aBC46c52416550D1 (testnet router)
 
 Both contracts are **verified** on BscScan Testnet:
 
-- [IronLockFactory — View on BscScan](https://testnet.bscscan.com/address/0xaf5c0A56d6dfdff492bE753EB044c49322FF33fb#code)
-- [MetadataRegistry — View on BscScan](https://testnet.bscscan.com/address/0x050dEbCD0751ea064d700874984B2afE06AEAa16#code)
+- [IronLockFactory — View on BscScan](https://testnet.bscscan.com/address/0x05b93a7123AdEE178a71f790A7De5C9B48249862#code)
+- [MetadataRegistry — View on BscScan](https://testnet.bscscan.com/address/ 0x480B218E3dE3CE05EE6AEdC102ae85C4e1F47a64#code)
 
 > **Note:** The PancakeSwap router address above is the testnet router. Mainnet deployment will point to PancakeSwap's official mainnet router.
 
