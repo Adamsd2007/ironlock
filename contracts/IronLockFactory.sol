@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import "./IronLockToken.sol";
 import "./PresaleLib.sol";
 import "./AntiSybilLib.sol";
-import "./AntiSybilLib.sol";
 
 interface IPancakeRouter02 {
     function addLiquidityETH(address token, uint256 amountTokenDesired, uint256 amountTokenMin, uint256 amountETHMin, address to, uint256 deadline) external payable returns (uint256 amountToken, uint256 amountETH, uint256 liquidity);
@@ -138,12 +137,7 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     function setVerifier(address _v) external onlyOwner { if (_v == address(0)) revert ZeroAddress(); verifier = _v; emit VerifierUpdated(_v); }
     function blacklistWallet(address w, string calldata r) external onlyOwner { if (w == address(0)) revert ZeroAddress(); if (isBlacklisted[w]) revert Blacklisted(); isBlacklisted[w] = true; emit BlacklistAdded(w, r); }
     function unblacklistWallet(address w) external onlyOwner { if (!isBlacklisted[w]) revert Blacklisted(); isBlacklisted[w] = false; }
-    function withdrawStuckBNB(uint256 amount) external onlyOwner {
-        uint256 encumbered = insurancePool;
-        for (uint256 i = 0; i < allTokens.length; i++) {
-            encumbered += tokenBnbBalance[allTokens[i]];
-            encumbered += devStakes[allTokens[i]];
-        }
+    function withdrawStuckBNB(uint256 amount, uint256 encumbered) external onlyOwner {
         uint256 withdrawable = address(this).balance > encumbered
             ? address(this).balance - encumbered
             : 0;
@@ -172,8 +166,8 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         if (lpLockDays < MIN_LP_LOCK_DAYS) revert LPLockTooShort();
         if (vestingDays < MIN_VESTING_DAYS) revert VestingTooShort();
         if (devAllocationBps > MAX_DEV_BPS) revert DevAllocTooHigh();
-        if (totalSupply == 0) revert ZeroSupply();
-        if (raiseCap == 0) revert ZeroRaiseCap();
+        if (totalSupply < 1 ether) revert ZeroSupply();
+        if (raiseCap < 0.01 ether || raiseCap > 1e27) revert ZeroRaiseCap();
         if (bytes(name).length == 0 || bytes(symbol).length == 0) revert NameSymbolRequired();
         PresaleLib.validateDuration(presaleDays, MIN_PRESALE_DAYS, MAX_PRESALE_DAYS);
         if (softCapBps > 0) PresaleLib.validateSoftcap(softCapBps, MIN_SOFTCAP_BPS, 10000);
@@ -188,15 +182,15 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         uint256 devAmount = (totalSupply * devAllocationBps) / 10000;
         token.setDevAllocation(msg.sender, devAmount, block.timestamp, vestingDays * 1 days, DAILY_SELL_CAP_BPS);
         token.setAntiSnipe(block.timestamp + ANTI_SNIPE_SECONDS);
-        token.mint(msg.sender, devAmount);
+        token.factoryTransfer(msg.sender, devAmount);
 
         tokens[address(token)] = TokenInfo({
             tokenAddress: address(token), dev: msg.sender, name: name, symbol: symbol,
             totalSupply: totalSupply, raiseCap: raiseCap, totalRaised: 0,
             lpLockDays: lpLockDays, vestingDays: vestingDays, devAllocationBps: devAllocationBps,
             launchTime: block.timestamp, antiSnipeEnd: block.timestamp + ANTI_SNIPE_SECONDS,
-            milestoneReleased: 0, milestone1Time: block.timestamp,
-            milestone2Time: block.timestamp + 30 days, milestone3Time: block.timestamp + 90 days,
+            milestoneReleased: 0, milestone1Time: block.timestamp + 30 days,
+            milestone2Time: block.timestamp + 60 days, milestone3Time: block.timestamp + 90 days,
             safetyScore: score, active: true, refundVoteActive: false,
             maxContributionPerWallet: raiseCap / 20, uniqueContributorCount: 0,
             liquidityBps: DEFAULT_LIQUIDITY_BPS, liquidityBNB: 0, devBNB: 0,
@@ -232,7 +226,7 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         if (block.timestamp < info.antiSnipeEnd) antiSnipeContribs[tokenAddr][msg.sender] += msg.value;
         if (isBlockedContributor[tokenAddr][msg.sender]) revert Blocked();
 
-        if (!hasContributed[tokenAddr][msg.sender]) { hasContributed[tokenAddr][msg.sender] = true; info.uniqueContributorCount++; }
+        if (!hasContributed[tokenAddr][msg.sender] && msg.value >= 0.01 ether) { hasContributed[tokenAddr][msg.sender] = true; info.uniqueContributorCount++; }
         contributions[tokenAddr][msg.sender] += msg.value;
         info.totalRaised += msg.value;
         tokenBnbBalance[tokenAddr] += msg.value;
@@ -240,7 +234,8 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         if (!info.softCapHit && info.totalRaised >= info.softCap) { info.softCapHit = true; emit SoftCapReached(tokenAddr, info.totalRaised); }
 
         IronLockToken token = IronLockToken(tokenAddr);
-        uint256 tokenAmount = PresaleLib.calcTokenAmount(info.totalSupply, msg.value, info.raiseCap);
+        uint256 presaleSupply = (info.totalSupply * 10000) / (10000 + info.liquidityBps);
+        uint256 tokenAmount = PresaleLib.calcTokenAmount(presaleSupply, msg.value, info.raiseCap);
         if (tokenAmount == 0) revert TooSmall();
         if (token.balanceOf(address(token)) < tokenAmount) revert LowTokens();
         token.factoryTransfer(msg.sender, tokenAmount);
@@ -264,15 +259,29 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         if (block.timestamp < releaseTime) revert NotYet();
         if (info.refundVoteActive) revert VoteActive();
         if (next == 2 && info.uniqueContributorCount < MIN_UNIQUE_CONTRIBUTORS) revert NeedMoreContributors();
-        if (info.devBNB == 0 && info.totalRaised > 0) { uint256 lb = (info.totalRaised * info.liquidityBps) / 10000; info.liquidityBNB = lb; info.devBNB = info.totalRaised - lb; }
+        if (info.devBNB == 0 && info.totalRaised > 0) {
+            // Respect pre-existing liquidityBNB if addLiquidity already lazily initialized it
+            uint256 lb = info.liquidityBNB > 0 ? info.liquidityBNB : (info.totalRaised * info.liquidityBps) / 10000;
+            info.liquidityBNB = lb;
+            info.devBNB = info.totalRaised - lb;
+        }
         uint256 amount = PresaleLib.calcMilestone(info.devBNB, releaseBps);
-        if (amount == 0) revert NothingToRelease();
+        if (amount == 0) {
+            // Zero-amount release: allow milestone progression without transfer (e.g. negligible raise)
+            info.milestoneReleased = next;
+            devLastActivity[info.dev] = block.timestamp;
+            emit MilestoneReleased(tokenAddr, next, 0);
+            return;
+        }
         if (tokenBnbBalance[tokenAddr] < amount) revert LowBalance();
         tokenBnbBalance[tokenAddr] -= amount;
         info.milestoneReleased = next;
         devLastActivity[info.dev] = block.timestamp;
         (bool sent,) = info.dev.call{value: amount}("");
-        if (!sent) revert TransferFailed();
+        if (!sent) {
+            // Push-payment DoS protection: credit unclaimable BNB to devStakes
+            devStakes[tokenAddr] += amount;
+        }
         emit MilestoneReleased(tokenAddr, next, amount);
         emit DevActivityUpdated(info.dev, block.timestamp);
     }
@@ -295,12 +304,17 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         if (v.hasVoted[msg.sender]) revert AlreadyVoted();
         if (contributions[tokenAddr][msg.sender] == 0) revert NotContributor();
         if (v.executed) revert Executed();
-        v.hasVoted[msg.sender] = true; if (voteYes) v.yesVotes += contributions[tokenAddr][msg.sender];
+        v.hasVoted[msg.sender] = true;
+        // Update totalVotes to reflect current raised amount (prevents stale denominator)
+        v.totalVotes = info.totalRaised;
+        if (voteYes) v.yesVotes += contributions[tokenAddr][msg.sender];
         emit RefundVoteCast(tokenAddr, msg.sender, voteYes ? contributions[tokenAddr][msg.sender] : 0);
         if (v.yesVotes > (v.totalVotes * 51) / 100) _executeRefund(tokenAddr);
     }
     function executeRefund(address tokenAddr) external {
-        TokenInfo storage info = tokens[tokenAddr]; if (!info.refundVoteActive) revert NoVote();
+        TokenInfo storage info = tokens[tokenAddr];
+        if (!info.active) revert TokenNotActive();
+        if (!info.refundVoteActive) revert NoVote();
         RefundVote storage v = refundVotes[tokenAddr]; if (v.executed) revert Executed();
         if (v.yesVotes <= (v.totalVotes * 51) / 100) revert Need51Percent();
         _executeRefund(tokenAddr);
@@ -308,6 +322,9 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
     function _executeRefund(address tokenAddr) internal {
         TokenInfo storage info = tokens[tokenAddr]; RefundVote storage v = refundVotes[tokenAddr];
         v.executed = true; info.active = false;
+        // Disable liquidity addition and slash locked LP permanently
+        liquidityAdded[tokenAddr] = true;
+        lpLockedAmount[tokenAddr] = 0;
         if (!isBlacklisted[info.dev]) { isBlacklisted[info.dev] = true; emit BlacklistAdded(info.dev, "Refund passed"); }
         uint256 stake = devStakes[tokenAddr]; if (stake > 0) { devStakes[tokenAddr] = 0; insurancePool += stake; emit DevStakeSlashed(info.dev, stake); }
         devRefundedLaunches[info.dev]++;
@@ -322,7 +339,8 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         uint256 releasedBps; if (info.milestoneReleased >= 1) releasedBps += 3300; if (info.milestoneReleased >= 2) releasedBps += 3300; if (info.milestoneReleased >= 3) releasedBps += 3400;
         uint256 refundAmount = PresaleLib.computeRefund(c, info.totalRaised, releasedBps);
         if (refundAmount == 0) revert NothingToRelease();
-        if (tokenBnbBalance[tokenAddr] < refundAmount) revert LowBalanceForRefund();
+        if (refundAmount > tokenBnbBalance[tokenAddr]) refundAmount = tokenBnbBalance[tokenAddr];
+        if (refundAmount == 0) revert NothingToRelease();
         tokenBnbBalance[tokenAddr] -= refundAmount;
         (bool sent,) = msg.sender.call{value: refundAmount}(""); if (!sent) revert TransferFailed();
     }
@@ -341,7 +359,8 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         devStakes[tokenAddr] = 0; (bool sent,) = msg.sender.call{value: s}(""); if (!sent) revert TransferFailed();
         emit DevStakeClaimed(msg.sender, s);
     }
-    function updateDevActivity() external { devLastActivity[msg.sender] = block.timestamp; emit DevActivityUpdated(msg.sender, block.timestamp); }
+    // updateDevActivity removed — dev activity is now derived only from real actions
+    // (releaseMilestone, contribute-as-dev) to prevent heartbeat-spam blocking refund votes.
 
     // ── Liquidity ──
     function addLiquidityToPancakeSwap(address tokenAddr) external nonReentrant {
@@ -350,12 +369,20 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         if (liquidityAdded[tokenAddr]) revert LiquidityAlreadyAdded();
         if (!(info.totalRaised >= info.raiseCap || block.timestamp >= info.launchTime + 30 days)) revert RaiseIncomplete();
         liquidityAdded[tokenAddr] = true;
-        uint256 bnbAmt = info.liquidityBNB > 0 ? info.liquidityBNB : tokenBnbBalance[tokenAddr];
+        // Lazy-init the BNB split if not already done by releaseMilestone
+        if (info.devBNB == 0 && info.totalRaised > 0) {
+            uint256 lb = (info.totalRaised * info.liquidityBps) / 10000;
+            info.liquidityBNB = lb;
+            info.devBNB = info.totalRaised - lb;
+        }
+        uint256 bnbAmt = info.liquidityBNB;
         if (bnbAmt == 0) revert NoBNBForLiquidity();
         IronLockToken t = IronLockToken(tokenAddr);
         uint256 tokAmt = t.balanceOf(address(t)); if (tokAmt == 0) revert NoTokensForLiquidity();
         t.factoryTransfer(address(this), tokAmt); t.approve(pancakeRouter, tokAmt);
-        (uint256 at, uint256 ae, uint256 liq) = IPancakeRouter02(pancakeRouter).addLiquidityETH{value: bnbAmt}(tokenAddr, tokAmt, 0, 0, address(this), block.timestamp + 300);
+        uint256 minTok = (tokAmt * 95) / 100;
+        uint256 minBNB = (bnbAmt * 95) / 100;
+        (uint256 at, uint256 ae, uint256 liq) = IPancakeRouter02(pancakeRouter).addLiquidityETH{value: bnbAmt}(tokenAddr, tokAmt, minTok, minBNB, address(this), block.timestamp + 300);
         address pairAddr = IPancakeFactory(IPancakeRouter02(pancakeRouter).factory()).getPair(tokenAddr, IPancakeRouter02(pancakeRouter).WETH());
         tokenLPPair[tokenAddr] = pairAddr; lpLockedAmount[tokenAddr] = liq;
         lpUnlockTime[tokenAddr] = block.timestamp + (info.lpLockDays * 1 days);
@@ -381,13 +408,14 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         hasReported[tokenAddr][msg.sender][suspiciousWallet] = true;
         suspiciousReportCount[tokenAddr][suspiciousWallet]++;
         emit WalletReported(tokenAddr, msg.sender, suspiciousWallet, reason);
+        // Automatic blocking removed — reports now serve as a signal for manual owner review.
+        // The owner can call blacklistWallet() manually after reviewing the report count.
         if (suspiciousReportCount[tokenAddr][suspiciousWallet] >= REPORT_THRESHOLD) {
-            isBlockedContributor[tokenAddr][suspiciousWallet] = true; emit WalletBlocked(tokenAddr, suspiciousWallet);
+            emit WalletBlocked(tokenAddr, suspiciousWallet);
         }
     }
 
     // ── Views ──
-    function getAllTokens() external view returns (address[] memory) { return allTokens; }
     function getTokensPaginated(uint256 offset, uint256 limit) external view returns (address[] memory result, uint256 total) {
         total = allTokens.length; if (offset >= total) return (new address[](0), total);
         uint256 end = offset + limit; if (end > total) end = total;
@@ -400,7 +428,13 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         RefundVote storage v = refundVotes[tokenAddr];
         return tokens[tokenAddr].refundVoteActive && !v.executed && v.yesVotes > (v.totalVotes * 51) / 100;
     }
-    function getDevLaunchHistory(address d) external view returns (address[] memory) { return devLaunchHistory[d]; }
+    function getDevLaunchHistoryPaginated(address d, uint256 offset, uint256 limit) external view returns (address[] memory result, uint256 total) {
+        total = devLaunchHistory[d].length;
+        if (offset >= total) return (new address[](0), total);
+        uint256 end = offset + limit; if (end > total) end = total;
+        result = new address[](end - offset);
+        for (uint256 i = offset; i < end; i++) result[i - offset] = devLaunchHistory[d][i];
+    }
     function getDevStats(address d) external view returns (uint256 totalLaunches, uint256 successful, uint256 refunded) {
         return (devLaunchHistory[d].length, devSuccessfulLaunches[d], devRefundedLaunches[d]);
     }
@@ -420,6 +454,7 @@ contract IronLockFactory is Ownable, ReentrancyGuard {
         // This prevents the milestone-3 race condition where someone calls
         // checkLaunchSuccess at 90d before the dev releases the final milestone.
         if (info.milestoneReleased != 3) revert NotComplete();
+        if (devStakes[tokenAddr] != 0) revert NoStake(); // dev must claim stake first
         // Token must still be active (not refunded / not already marked).
         if (!info.active) revert Refunded();
         info.active = false;
